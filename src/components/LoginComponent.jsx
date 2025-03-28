@@ -4,15 +4,14 @@ import useAuthStore from "../hooks/useAuthStore";
 // import Header from "./Header/HeaderComponent";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email && password) {
-      login({ email });
+    if (form.email && form.password) {
+      login({ email: form.email });
       navigate("/dashboard");
     }
   };
@@ -26,16 +25,16 @@ export default function Login() {
           <input
             type="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
             className="input"
           />
           <input
             type="password"
             placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
             className="input"
           />
@@ -43,9 +42,9 @@ export default function Login() {
             Войти
           </button>
         </form>
-        <p>
+        {/* <p>
           <Link to="/reset-password">Забыли пароль?</Link>
-        </p>
+        </p> */}
         <p>
           Нет аккаунта? <Link to="/register">Зарегистрируйтесь</Link>
         </p>
