@@ -1,0 +1,10 @@
+.layout {
+    min-height: 100vh;
+}
+
+.header {
+    width: 100%;
+    color: white;
+    padding: 0;
+    text-align: center;
+}
