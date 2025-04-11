@@ -6,12 +6,12 @@ export default function RegisterForm({
     isLoading,
 }) {
     return (
-        <form onSubmit={handleSubmit} className="form">
+        <form onSubmit={handleSubmit} method="post" className="form">
             <input
                 type="text"
                 placeholder="Имя пользователя"
-                value={form.userName}
-                onChange={(e) => setForm({ ...form, userName: e.target.value })}
+                value={form.username} // Измени на "form.username"
+                onChange={(e) => setForm({ ...form, username: e.target.value })} // Измени на "username"
                 required
                 className="input"
             />

@@ -4,13 +4,21 @@ export default class PostServiсe {
     static async PostRegistration(form, setError, setIsLoading) {
         setIsLoading(true);
         setError("");
-
+    
         try {
-            const response = await api.post("/auth/register", {
-                email: form.email,
-                password: form.password,
-                userName: form.userName,
-            });
+            const response = await api.post(
+                "/api/v1/users/signup",
+                {
+                    email: form.email,
+                    password: form.password,
+                    username: form.username,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
             if (response.status === 200) {
                 alert("Подтвердите Вашу почту");
             }
@@ -28,11 +36,19 @@ export default class PostServiсe {
                     case 409:
                         setError("Пользователь с таким email уже существует.");
                         break;
-                    case 422:
-                        setError(
-                            "Ошибка валидации: " + error.response.data.detail
-                        );
-                        break;
+                        case 422:
+                            const detail = error.response.data.detail;
+                            if (detail && Array.isArray(detail)) {
+                                const usernameError = detail.find(
+                                    (err) => err.loc && err.loc.includes("username") && err.type === "string_too_short"
+                                );
+                                if (usernameError) {
+                                    setError("Имя пользователя должно содержать не менее 3 символов.");
+                                    break;
+                                }
+                            }
+                            setError("Ошибка валидации: Проверьте введенные данные.");
+                            break;
                     case 500:
                         setError("Ошибка на сервере. Попробуйте позже.");
                         break;
