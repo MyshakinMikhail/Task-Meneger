@@ -8,6 +8,3 @@ async_session = sessionmaker(engine, class_=AsyncSession)
 async def get_db():
     async with async_session() as session:
         yield session
-
-
-print("DATABASE_URL:", DATABASE_URL)
