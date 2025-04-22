@@ -1,60 +1,128 @@
-from fastapi import APIRouter, HTTPException, status, Response, Depends
-from app.schemas.user import UserCreate, UserLogin, UserOut
-from app.schemas.token import Token
-from app.database.user import create_user, authenticate_user, get_user_by_email
-from app.database.token import create_refresh_token as db_create_rt, revoke_refresh_token, get_refresh_token
-from app.utils.security import create_access_token, create_refresh_token as gen_refresh, decode_token
-from app.config import REFRESH_TOKEN_EXPIRE_DAYS
-from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
+from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from ..schemas.user import UserRegister, UserLogin, Token
+from ..models.users import User
+from ..security.security import *
+from ..database import get_db
+from ..config import REFRESH_TOKEN_EXPIRE_DAYS
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
-@router.post("/register")
-async def register(user: UserCreate):
-    if await get_user_by_email(user.email):
-        raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
-    if await authenticate_user(user.username, user.password):
-        raise HTTPException(status_code=400, detail="Username уже существует")
-    return await create_user(user.username, user.email, user.password)
+@router.get("/")
+async def root():
+    return {"message": "FastAPI auth app is running!"}
 
-@router.post("/login")
-async def login(response: Response, creds: UserLogin):
-    user = await authenticate_user(creds.username, creds.password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Неверные учетные данные")
-    access_token = create_access_token(subject=user.username)
-    refresh_str, expires = gen_refresh()
-    await db_create_rt(user_id=user.id, token=refresh_str, expires_at=expires)
+@router.post("/register", response_model=Token)
+async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
+    existing_user = await db.execute(
+        select(User).filter(User.email == user_data.email)
+    )
+    if existing_user.scalars().first():
+        raise HTTPException(status_code=400, detail="Почта уже зарегестрирована")
+    
+    hashed_password = get_password_hash(user_data.password)
+    user = User(
+        username=user_data.username,
+        email=user_data.email,
+        hashed_password=hashed_password
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    
+    access_token = create_access_token(data={"sub": user.email})
+    refresh_token = create_refresh_token({"sub": user.email})
+    
+    user.refresh_token = refresh_token
+    await db.commit()
+    await db.refresh(user)
+    
+    response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
     response.set_cookie(
         key="refresh_token",
-        value=refresh_str,
+        value=refresh_token,
         httponly=True,
-        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
+        secure=True,
+        samesite="Lax"
     )
-    return {"access_token": access_token}
+    return response
+
+@router.post("/login", response_model=Token)
+async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
+    user = await db.execute(select(User).filter(User.email == user_data.email))
+    user = user.scalars().first()
+    if not user or not verify_password(user_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверная почта или пароль",
+        )
+    
+    access_token = create_access_token(data={"sub": user.email})
+    refresh_token = create_refresh_token({"sub": user.email})
+    
+    user.refresh_token = refresh_token
+    await db.commit()
+    await db.refresh(user)
+    
+    response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
+        secure=True,
+        samesite="Lax"
+    )
+    return response
 
 @router.post("/refresh")
-async def refresh(response: Response, refresh_token: str = Depends(lambda request: request.cookies.get("refresh_token"))):
+async def refresh_token(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie(None)):
     if not refresh_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    db_token = await get_refresh_token(refresh_token)
-    if not db_token or db_token.revoked or db_token.expires_at < datetime.utcnow():
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    await revoke_refresh_token(refresh_token)
-    access_token = create_access_token(subject=db_token.user_id)
-    new_str, expires = gen_refresh()
-    await db_create_rt(user_id=db_token.user_id, token=new_str, expires_at=expires)
+        raise HTTPException(status_code=401, detail="Refresh token утерян")
+    
+    payload = decode_token(refresh_token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Неверный refresh token")
+    
+    user = await db.execute(select(User).filter(User.email == payload.get("sub")))
+    user = user.scalars().first()
+    if not user or user.refresh_token != refresh_token:
+        raise HTTPException(status_code=401, detail="Неверный refresh token")
+    
+    new_access_token = create_access_token(data={"sub": user.email})
+    new_refresh_token = create_refresh_token({"sub": user.email})
+    
+    user.refresh_token = new_refresh_token
+    await db.commit()
+    await db.refresh(user)
+    
+    response = JSONResponse(content={"access_token": new_access_token, "token_type": "bearer"})
     response.set_cookie(
         key="refresh_token",
-        value=new_str,
+        value=new_refresh_token,
         httponly=True,
-        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
+        secure=True,
+        samesite="Lax"
     )
-    return {"access_token": access_token}
+    return response
 
 @router.post("/logout")
-async def logout(response: Response, refresh_token: str = Depends(lambda request: request.cookies.get("refresh_token"))):
+async def logout(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie(None)):
     if refresh_token:
-        await revoke_refresh_token(refresh_token)
-    response.delete_cookie(key="refresh_token")
-    return {"detail": "Logged out"}
+        payload = decode_token(refresh_token)
+        if payload:
+            user = await db.execute(select(User).filter(User.email == payload.get("sub")))
+            user = user.scalars().first()
+            if user:
+                user.refresh_token = None
+                await db.commit()
+                await db.refresh(user)
+    
+    response = JSONResponse(content={"message": "Successfully logged out"})
+    response.delete_cookie("refresh_token")
+    return response
+

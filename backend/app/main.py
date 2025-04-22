@@ -1,20 +1,14 @@
-import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database.database import engine, metadata
-from app.routers.auth import router as auth_router
+from .routers import auth
+from .database import engine
+from .models.users import Base, User
 
-async def init_models():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.run_sync(metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
-app = FastAPI()
-
-@app.on_event("startup")
-async def on_startup():
-    await init_models()
-
-@app.on_event("shutdown")
-async def on_shutdown():
-    await engine.dispose()
-
-app.include_router(auth_router)
+app = FastAPI(lifespan=lifespan)
+app.include_router(auth.router, prefix="/auth", tags=["Аутентификация"])
