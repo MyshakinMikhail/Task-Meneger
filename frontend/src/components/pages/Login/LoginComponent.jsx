@@ -1,27 +1,23 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useAuthStore from "../../../hooks/useAuthStore";
+import PostServiсe from "../../API/PostServiseComponent";
+
 export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    const login = useAuthStore((state) => state.login);
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         if (form.email && form.password) {
-            // запрос на бэк, с целью проверки корректности валидации
-            // ответ: пользователь есть или пользователя нет
-            // получаю jwt токены и добавляю их в логу
-            login(true);
-            console.log("user auth");
-            navigate("/main");
+            PostServiсe.PostLogin(form, setError, setIsLoading, navigate);
         }
     };
 
     return (
         <>
-            {/* <Header /> */}
             <div className="container">
                 <div className="authContainer">
                     <h2>Вход</h2>
@@ -46,8 +42,9 @@ export default function Login() {
                             required
                             className="input"
                         />
+                        {error && <p className="error">{error}</p>}
                         <button type="submit" className="button">
-                            Войти
+                            {isLoading ? "Вход..." : "Войти"}
                         </button>
                     </form>
                     {/* <p>
