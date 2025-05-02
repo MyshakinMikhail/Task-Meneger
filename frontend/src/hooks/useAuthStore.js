@@ -2,22 +2,24 @@ import { create } from "zustand";
 
 const useAuthStore = create((set) => ({
     accessToken: null,
-    isAuth: false,
 
     login: (token) => {
         localStorage.setItem("access", token);
-        set({ accessToken: token, isAuth: true });
+        console.log("Token - ", token, " сохранен в localStorage");
+        set({ accessToken: token });
     },
 
     logout: () => {
         localStorage.removeItem("access");
-        set({ accessToken: null, isAuth: false });
+        console.log("Токен удален из localStorage");
+        set({ accessToken: null });
     },
 }));
 
-const initialIsAuth = localStorage.getItem("isAuth");
+const initialIsToken = localStorage.getItem("access");
 
 useAuthStore.setState({
-    isAuth: initialIsAuth,
+    accessToken: initialIsToken,
 });
+
 export default useAuthStore;
