@@ -1,4 +1,5 @@
 import api from "../utils/api";
+import useAuthStore from "./../../hooks/useAuthStore";
 
 export default class PostServiсe {
     static async PostRegistration(form, setError, setIsLoading) {
@@ -6,11 +7,12 @@ export default class PostServiсe {
         setError("");
 
         try {
-            const response = await api.post("/auth/register", {
+            const response = await api.post("/api/auth/register", {
                 email: form.email,
                 password: form.password,
-                userName: form.userName,
+                username: form.username,
             });
+
             if (response.status === 200) {
                 alert("Подтвердите Вашу почту");
             }
@@ -20,13 +22,8 @@ export default class PostServiсe {
             // обработка ошибок 400, 409, 422 ( ошибка валидации пароля ), 500.
             if (error.response) {
                 switch (error.response.status) {
-                    case 400:
-                        setError(
-                            "Некорректный email. Проверьте введенные данные."
-                        );
-                        break;
                     case 409:
-                        setError("Пользователь с таким email уже существует.");
+                        setError(`${error.response.data.detail}`);
                         break;
                     case 422:
                         setError(
@@ -35,6 +32,52 @@ export default class PostServiсe {
                         break;
                     case 500:
                         setError("Ошибка на сервере. Попробуйте позже.");
+                        break;
+                    default:
+                        setError("Произошла ошибка. Попробуйте еще раз.");
+                }
+            } else {
+                setError("Не удалось подключиться к серверу.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    static async PostLogin(form, setError, setIsLoading, navigate) {
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const response = await api.post("/api/auth/login", {
+                email: form.email,
+                password: form.password,
+            });
+
+            if (response.status === 200) {
+                const login = useAuthStore.getState().login;
+
+                console.log("Токен получен с backend");
+
+                login(response.data.access_token);
+
+                navigate("/main");
+
+                console.log("Авторизация прошла успешно");
+            }
+        } catch (error) {
+            if (error.response) {
+                switch (error.response.status) {
+                    case 422:
+                        setError(
+                            "Ошибка валидации: " + error.response.data.detail
+                        );
+                        break;
+                    case 500:
+                        setError(
+                            "Ошибка на сервере. Попробуйте позже. " +
+                                error.response.data
+                        );
                         break;
                     default:
                         setError("Произошла ошибка. Попробуйте еще раз.");
