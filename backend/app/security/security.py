@@ -41,3 +41,24 @@ def decode_token(token: str):
         )
     except JWTError:
         return None
+
+def create_email_verification_token(email: str):
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(hours=24)
+    return jwt.encode(
+        {"sub": email, "exp": expire},
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+def verify_email_token(token: str):
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+            options={"require_exp": True}
+        )
+        return payload.get("sub")
+    except JWTError:
+        return None
