@@ -1,10 +1,11 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from fastapi import HTTPException
+from pydantic import BaseModel, field_validator
 import re
 
 
 class UserRegister(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     password: str
 
     @field_validator("username")
@@ -18,21 +19,27 @@ class UserRegister(BaseModel):
             )
         return v
 
-    @field_validator("password")
+    @field_validator('email')
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if "@" not in v or "." not in v:
+            raise ValueError("Некорректный формат почты")
+        if len(v) > 255:
+            raise ValueError("Максимальная длина почты - 255 символов")
+        return v
+    
+    @field_validator('password')
     @classmethod
     def validate_password(cls, v: str) -> str:
         if len(v) < 8 or len(v) > 32:
-            raise ValueError("Пароль должен содержать от 8 до 32 символов")
-        if not re.match(r"^[a-zA-Z0-9!@#$%^&*()_+]+$", v):
-            raise ValueError(
-                "Пароль содержит недопустимые символы."
-                "Допустимые символы: a-zA-Z0-9!@#$%^&*()_+"
-            )
+            raise ValueError('Пароль должен содержать от 8 до 32 символов')
+        if not re.match(r'^[a-zA-Z0-9!@#$%^&*()_+]+$', v):
+            raise ValueError('Пароль содержит недопустимые символы.\nДопустимые символы: a-zA-Z0-9!@#$%^&*()_+')
         return v
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 
