@@ -10,8 +10,8 @@ export default function RegisterForm({
             <input
                 type="text"
                 placeholder="Имя пользователя"
-                value={form.userName}
-                onChange={(e) => setForm({ ...form, userName: e.target.value })}
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
                 required
                 className="input"
             />

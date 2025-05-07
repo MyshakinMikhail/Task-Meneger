@@ -2,18 +2,21 @@ from fastapi import HTTPException
 from pydantic import BaseModel, field_validator
 import re
 
+
 class UserRegister(BaseModel):
     username: str
     email: str
     password: str
-    
-    @field_validator('username')
+
+    @field_validator("username")
     @classmethod
     def validate_username(cls, v: str) -> str:
         if len(v) < 3 or len(v) > 50:
-            raise ValueError('Никнейм должен содержать от 3 до 50 символов')
-        if not re.match(r'^[a-zA-Z0-9_]+$', v):
-            raise ValueError('Никнейм должен содержать только латинские буквы, цифры и нижние подчеркивание')
+            raise ValueError("Никнейм должен содержать от 3 до 50 символов")
+        if not re.match(r"^[a-zA-Z0-9_]+$", v):
+            raise ValueError(
+                "Никнейм должен содержать только латинские буквы, цифры и нижние подчеркивание"
+            )
         return v
 
     @field_validator('email')
@@ -34,9 +37,11 @@ class UserRegister(BaseModel):
             raise ValueError('Пароль содержит недопустимые символы.\nДопустимые символы: a-zA-Z0-9!@#$%^&*()_+')
         return v
 
+
 class UserLogin(BaseModel):
     email: str
     password: str
+
 
 class Token(BaseModel):
     access_token: str

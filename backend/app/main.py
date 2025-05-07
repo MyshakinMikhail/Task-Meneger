@@ -4,12 +4,15 @@ from fastapi import FastAPI, HTTPException, Request
 from .routers import auth
 from .database import engine
 from .models.users import Base, User
+import uvicorn
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -23,3 +26,4 @@ app.include_router(auth.router, prefix="/auth", tags=["Аутентификац�
 async def handle_validation_error(request: Request, exc: RequestValidationError):
     error_message = exc.errors()[0]["msg"][13:]
     raise HTTPException(status_code=422, detail=error_message)
+
