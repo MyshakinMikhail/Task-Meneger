@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Cookie
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from pydantic import ValidationError
 from ..schemas.user import UserRegister, UserLogin, Token
 from ..models.users import User
 from ..security.security import *
@@ -39,32 +38,6 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
         content={"message": "Письмо с подтверждением отправлено на вашу почту"},
         status_code=201
     )
-
-@router.get("/verify-email/{token}")
-async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
-    email = verify_email_token(token)
-    if not email:
-        raise HTTPException(status_code=400, detail="Недействительный токен")
-    
-    user = await db.execute(select(User).filter(User.email == email))
-    user = user.scalars().first()
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    
-    if user.is_verified:
-        return {"message": "Почта уже подтверждена"}
-    
-    if datetime.now(timezone.utc) > user.token_expiration:
-        raise HTTPException(status_code=400, detail="Срок действия токена истёк")
-    
-    user.is_verified = True
-    user.verification_token = None
-    await db.commit()
-    
-    return {"message": "Почта успешно подтверждена"}
-
-
 
 @router.post("/login", response_model=Token)
 async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
@@ -152,3 +125,27 @@ async def logout(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie
     response = JSONResponse(content={"message": "Successfully logged out"})
     response.delete_cookie("refresh_token")
     return response
+
+@router.get("/verify-email/{token}")
+async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    email = verify_email_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Недействительный токен")
+    
+    user = await db.execute(select(User).filter(User.email == email))
+    user = user.scalars().first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    
+    if user.is_verified:
+        return {"message": "Почта уже подтверждена"}
+    
+    if datetime.now(timezone.utc) > user.token_expiration:
+        raise HTTPException(status_code=400, detail="Срок действия токена истёк")
+    
+    user.is_verified = True
+    user.verification_token = None
+    await db.commit()
+    
+    return {"message": "Почта успешно подтверждена"}
