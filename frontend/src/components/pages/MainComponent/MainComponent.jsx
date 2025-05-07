@@ -1,27 +1,22 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "./../../../hooks/useAuthStore";
-import Antd from "./Antd/AntdComponent";
+import TaskManager from "./TaskMeneger";
 
 export default function Main() {
-    // const logout = useAuthStore((state) => state.logout);
-    const isAuth = useAuthStore((state) => state.isAuth);
+    const accessToken = useAuthStore((state) => state.accessToken);
     const navigate = useNavigate();
 
     useEffect(() => {
-        localStorage.setItem("isAuth", isAuth);
-    }, [isAuth]);
-
-    useEffect(() => {
-        if (!isAuth) {
+        if (!accessToken) {
             navigate("/login");
-            console.log("user is not auth");
+            console.log("Пользователь не авторизован");
         }
-    }, [isAuth, navigate]);
+    }, [accessToken, navigate]);
 
     return (
         <div className="container">
-            <Antd />
+            <TaskManager />
         </div>
     );
 }
