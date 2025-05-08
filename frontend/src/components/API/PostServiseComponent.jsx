@@ -13,7 +13,7 @@ export default class PostServiсe {
                 username: form.username,
             });
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 alert("Подтвердите Вашу почту");
             }
             // navigate("/login");
@@ -68,6 +68,9 @@ export default class PostServiсe {
         } catch (error) {
             if (error.response) {
                 switch (error.response.status) {
+                    case 403:
+                        setError("Ошибка: " + error.response.data.detail);
+                        break;
                     case 422:
                         setError(
                             "Ошибка валидации: " + error.response.data.detail
@@ -76,11 +79,11 @@ export default class PostServiсe {
                     case 500:
                         setError(
                             "Ошибка на сервере. Попробуйте позже. " +
-                                error.response.data
+                                error.response.data.detail
                         );
                         break;
                     default:
-                        setError("Произошла ошибка. Попробуйте еще раз.");
+                        setError("Поизошла ошибка. Попробуйте еще раз.");
                 }
             } else {
                 setError("Не удалось подключиться к серверу.");
