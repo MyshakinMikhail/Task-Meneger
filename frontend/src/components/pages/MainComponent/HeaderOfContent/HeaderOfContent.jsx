@@ -18,7 +18,6 @@ export default function HeaderOfContent({ setSortOption, showModal }) {
                     suffixIcon={<SortAscendingOutlined />}
                 >
                     <Option value="title">Заголовок</Option>
-                    <Option value="description">Описание</Option>
                     <Option value="dueDate">Срок Выполнения</Option>
                     <Option value="priority">Приоритет</Option>
                 </Select>

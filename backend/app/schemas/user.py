@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from pydantic import BaseModel, field_validator
 import re
 
@@ -22,10 +21,13 @@ class UserRegister(BaseModel):
     @field_validator('email')
     @classmethod
     def validate_email(cls, v: str) -> str:
-        if "@" not in v or "." not in v:
-            raise ValueError("Некорректный формат почты")
-        if len(v) > 255:
-            raise ValueError("Максимальная длина почты - 255 символов")
+        if not re.fullmatch(r'^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$', v):
+            raise ValueError("Неверный формат email")
+        local_part, domain = v.split('@')
+        if len(local_part) > 64:
+            raise ValueError("Локальная часть email не должна превышать 64 символа")
+        if len(domain) > 255:
+            raise ValueError("Домен не должен превышать 255 символов")
         return v
     
     @field_validator('password')
