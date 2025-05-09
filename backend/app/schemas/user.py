@@ -1,6 +1,9 @@
 from pydantic import BaseModel, field_validator
 import re
+from typing import Optional, List
+from datetime import datetime
 
+from .note import NoteResponse  # Импортируем NoteResponse
 
 class UserRegister(BaseModel):
     username: str
@@ -29,7 +32,7 @@ class UserRegister(BaseModel):
         if len(domain) > 255:
             raise ValueError("Домен не должен превышать 255 символов")
         return v
-    
+
     @field_validator('password')
     @classmethod
     def validate_password(cls, v: str) -> str:
@@ -48,3 +51,14 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: Optional[str] = None
+    notes: List[NoteResponse] = []  # Список заметок пользователя
+
+    class Config:
+        from_attributes = True
