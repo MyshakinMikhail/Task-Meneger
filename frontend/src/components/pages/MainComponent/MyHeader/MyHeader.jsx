@@ -6,7 +6,7 @@ import classes from "./MyHeader.module.css";
 
 const { Header } = Layout;
 
-export default function MyHeader() {
+export default function MyHeader({ username }) {
     const navigate = useNavigate();
 
     const userMenuItems = [
@@ -16,7 +16,7 @@ export default function MyHeader() {
     ];
 
     const user = {
-        name: "Михаил Мышакин",
+        name: username,
         avatar: null,
         email: "john.doe@example.com",
     };

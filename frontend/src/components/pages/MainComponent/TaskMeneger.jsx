@@ -2,6 +2,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Form, Layout, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import { v4 as createUniqueKey } from "uuid";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
 import MyModal from "./MyModal/MyModal";
@@ -23,53 +24,53 @@ const TaskManager = () => {
     const [editingTask, setEditingTask] = useState(null);
     const [form] = Form.useForm();
     const [sortOption, setSortOption] = useState(null);
+    const username = "Имя пользователя";
+
+    // const [username, setUsername] = useState("Имя пользователя");
+
+    // const [isTasksLoading, setIsTasksLoading] = useState(false)
+
+    // ПОДГРУЗКА ЗАДАЧ С БЭКА
+
+    // useEffect(() => {
+    //     async function fetchTasks() {
+    //         try {
+    //             const response = await api.get("/api/me");
+    //             setUsername(response.data.username)
+
+    //             const userTasks = response.data.tasks || [];\
+    //             const sampleTasks = [
+    //                 {
+    //                     id: "1",
+    //                     title: "Добро пожаловать в TaskMeneger",
+    //                     description:
+    //                         "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
+    //                     priority: "high",
+    //                     dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    //                     status: "todo",
+    //                     column: "todo",
+    //                 },
+    //                 ...userTasks,
+    //             ];
+
+    //             setTasks(sampleTasks);
+    //         } catch (error) {
+    //             console.log("Произошла ошибка при загрузке задач ", error);
+    //         }
+    //     }
+
+    //     fetchTasks();
+    // }, []);
 
     useEffect(() => {
         const sampleTasks = [
             {
                 id: "1",
-                title: "Create project plan",
+                title: "Добро пожаловать в TaskMeneger",
                 description:
-                    "Outline the project scope, timeline, and deliverables",
+                    "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
                 priority: "high",
-                dueDate: dayjs().add(2, "day").format("YYYY-MM-DD"),
-                status: "todo",
-                column: "todo",
-            },
-            {
-                id: "2",
-                title: "Design user interface",
-                description:
-                    "Create wireframes and mockups for the application",
-                priority: "medium",
-                dueDate: dayjs().add(5, "day").format("YYYY-MM-DD"),
-                status: "in-progress",
-                column: "in-progress",
-            },
-            {
-                id: "3",
-                title: "Implement authentication",
-                description: "Set up user authentication and authorization",
-                priority: "high",
-                dueDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
-                status: "todo",
-                column: "todo",
-            },
-            {
-                id: "4",
-                title: "Write documentation",
-                description: "Document the API and user guide",
-                priority: "low",
-                dueDate: dayjs().add(10, "day").format("YYYY-MM-DD"),
-                status: "todo",
-                column: "todo",
-            },
-            {
-                id: "5",
-                title: "Fix login bug",
-                description: "Resolve the issue with login on mobile devices",
-                priority: "high",
-                dueDate: dayjs().subtract(2, "day").format("YYYY-MM-DD"),
+                dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
                 status: "todo",
                 column: "todo",
             },
@@ -91,30 +92,70 @@ const TaskManager = () => {
         setIsModalVisible(true);
     };
 
-    const handleOk = () => {
-        form.validateFields().then((values) => {
-            const formattedTask = {
-                ...values,
-                id: editingTask ? editingTask.id : Date.now().toString(),
-                dueDate: values.dueDate.format("YYYY-MM-DD"),
-                status: editingTask ? editingTask.status : "todo",
-                column: editingTask ? editingTask.column : "todo",
-            };
+    function addTask() {
+        try {
+            form.validateFields().then(async (values) => {
+                const formattedTask = {
+                    ...values,
+                    id: createUniqueKey(), // это первичный id, нужен будет id заметки с бэка
+                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
+                    status: "todo",
+                    column: "todo",
+                };
 
-            if (editingTask) {
+                setTasks((prevTasks) => [...prevTasks, formattedTask]);
+
+                // тут стоят мои id, не из бд !!!
+
+                // тут запрос на бэк
+                // const response = await api.post("/api/add_task", {...formattedTask})
+                // formattedTask.id = response.data.id -> для обновления id, чтобы соответствовало бэку
+
+                // замена id на значение из бд ( тут баг )
+                // const new_id = 10;
+                // setTasks((prevTasks) =>
+                //     prevTasks.map((task) =>
+                //         task.id === editingTask.id
+                //             ? { ...formattedTask, id: new_id }
+                //             : task
+                //     )
+                // );
+
+                setIsModalVisible(false);
+                form.resetFields();
+            });
+        } catch {
+            console.log("Ошибка создания заметки");
+        }
+    }
+
+    function editTask() {
+        try {
+            form.validateFields().then(async (values) => {
+                const formattedTask = {
+                    ...values,
+                    id: editingTask.id,
+                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
+                    status: editingTask.status,
+                    column: editingTask.column,
+                };
+
                 setTasks((prevTasks) =>
                     prevTasks.map((task) =>
                         task.id === editingTask.id ? formattedTask : task
                     )
                 );
-            } else {
-                setTasks((prevTasks) => [...prevTasks, formattedTask]);
-            }
 
-            setIsModalVisible(false);
-            form.resetFields();
-        });
-    };
+                // тут запрос на бэк
+                // const response = await api.put("/api/edit_task", {...formattedTask})
+
+                setIsModalVisible(false);
+                form.resetFields();
+            });
+        } catch {
+            console.log("Ошибка редактирования заметки");
+        }
+    }
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -141,10 +182,17 @@ const TaskManager = () => {
             okText: "Да",
             okType: "danger",
             cancelText: "Нет",
-            onOk() {
-                setTasks((prevTasks) =>
-                    prevTasks.filter((task) => task.id !== taskId)
-                );
+            async onOk() {
+                try {
+                    //await api.delete("/api/delete_task", { data: { taskId } }); //  - запрос на удаление заметки в бд
+                    setTasks((prevTasks) =>
+                        prevTasks.filter((task) => task.id !== taskId)
+                    );
+                } catch (error) {
+                    console.log(
+                        "Произошла ошибка при удалении заметки" + error
+                    );
+                }
             },
         });
     };
@@ -168,8 +216,6 @@ const TaskManager = () => {
             switch (sortOption) {
                 case "title":
                     return a.title.localeCompare(b.title);
-                case "description":
-                    return a.description.localeCompare(b.description);
                 case "dueDate":
                     return dayjs(a.dueDate).diff(dayjs(b.dueDate));
                 case "priority": {
@@ -186,7 +232,7 @@ const TaskManager = () => {
 
     return (
         <Layout style={{ minHeight: "100vh", overflow: "auto" }}>
-            <MyHeader />
+            <MyHeader username={username} />
             <Layout>
                 <MySider colorBgContainer="white" />
                 <Layout style={{ padding: "24px 24px 24px" }}>
@@ -216,7 +262,8 @@ const TaskManager = () => {
             </Layout>
             <MyModal
                 handleCancel={handleCancel}
-                handleOk={handleOk}
+                addTask={addTask}
+                editTask={editTask}
                 form={form}
                 editingTask={editingTask}
                 isModalVisible={isModalVisible}
