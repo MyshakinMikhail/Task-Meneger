@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
 // Создаем экземпляр axios с базовыми настройками
 const api = axios.create({
-    // baseURL: VITE_API_URL -> Базоывый URL-адрес, по которому идет обращение к серверу. Он добавляется в каждый API запрос
+    baseURL: VITE_API_URL, //-> Базоывый URL-адрес, по которому идет обращение к серверу. Он добавляется в каждый API запрос
     withCredentials: true, // Для автоматического отправления cookie файлов на сервер и получения с сервера
     headers: {
         "Content-Type": "application/json",

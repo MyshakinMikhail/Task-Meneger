@@ -71,6 +71,9 @@ export default class PostServiсe {
                     case 403:
                         setError("Ошибка: " + error.response.data.detail);
                         break;
+                    case 404:
+                        setError("Ошибка: " + error.response.data.detail);
+                        break;
                     case 422:
                         setError(
                             "Ошибка валидации: " + error.response.data.detail
