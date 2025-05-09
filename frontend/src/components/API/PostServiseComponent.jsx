@@ -7,7 +7,7 @@ export default class PostServiсe {
         setError("");
 
         try {
-            const response = await api.post("/api/auth/register", {
+            const response = await api.post("/auth/register", {
                 email: form.email,
                 password: form.password,
                 username: form.username,
@@ -49,7 +49,7 @@ export default class PostServiсe {
         setError("");
 
         try {
-            const response = await api.post("/api/auth/login", {
+            const response = await api.post("/auth/login", {
                 email: form.email,
                 password: form.password,
             });
