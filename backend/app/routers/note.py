@@ -9,13 +9,13 @@ from sqlalchemy.orm import joinedload
 from ..database import get_db
 from ..models.notes import Note
 from ..schemas.note import NoteCreate, NoteUpdate, NoteResponse
-from ..schemas.user import UserResponse  # Импортируем UserResponse
+from ..schemas.user import UserResponse
 from ..security.security import get_current_user
 from ..models.users import User
 
 router = APIRouter(prefix="/tasks", tags=["Задачи"])
 
-@router.post("/", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/create-task", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(note: NoteCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_note = Note(**note.model_dump(), user_id=current_user.id)
     db.add(db_note)
@@ -23,7 +23,7 @@ async def create_task(note: NoteCreate, db: AsyncSession = Depends(get_db), curr
     await db.refresh(db_note)
     return db_note
 
-@router.put("/{note_id}", response_model=NoteResponse)
+@router.put("/edit-task/{note_id}", response_model=NoteResponse)
 async def edit_task(
     note_id: int,
     note_update: NoteUpdate,
@@ -47,7 +47,7 @@ async def edit_task(
         await db.refresh(db_note)
         return db_note
 
-@router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete-task/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
     note_id: int,
     db: AsyncSession = Depends(get_db),
