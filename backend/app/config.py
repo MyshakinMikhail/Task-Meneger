@@ -16,3 +16,4 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
+GIGACHAT_AUTH_TOKEN = os.getenv("GIGACHAT_AUTH_TOKEN")

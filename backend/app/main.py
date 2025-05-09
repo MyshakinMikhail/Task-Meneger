@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from fastapi import FastAPI, HTTPException, Request
-from .routers import auth
+from .routers import auth, gigachat
 from .database import engine
 from .models.users import Base, User
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["Аутентификация"])
+app.include_router(gigachat.router, prefix="/gigachat", tags=["ГигаЧат"])
 
 @app.get("/", tags=["Главная"])
 async def root():
