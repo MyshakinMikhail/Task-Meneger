@@ -65,18 +65,18 @@ async def delete_task(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    async with db.begin():
-        result = await db.execute(
-            delete(Note).where(Note.id == note_id, Note.user_id == current_user.id)
-        )
-        deleted_count = result.rowcount
-        await db.commit()
+    # async with db.begin():
+    result = await db.execute(
+        delete(Note).where(Note.id == note_id, Note.user_id == current_user.id)
+    )
+    deleted_count = result.rowcount
+    await db.commit()
 
-        if deleted_count == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
-            )
-        return
+    if deleted_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
+        )
+    return
 
 
 @router.get("/me", response_model=UserResponse)

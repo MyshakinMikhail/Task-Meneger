@@ -1,20 +1,20 @@
 import axios from "axios";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
-
+const token = localStorage.getItem("access");
 // Создаем экземпляр axios с базовыми настройками
 const api = axios.create({
     baseURL: VITE_API_URL, // -> Базоывый URL-адрес, по которому идет обращение к серверу. Он добавляется в каждый API запрос
     withCredentials: true, // Для автоматического отправления cookie файлов на сервер и получения с сервера
     headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
     }, // отправляемые данные с frontend имеют тип json
 });
 
 // Добавляем перехватчик запросов для автоматического добавления токена в url при любых запросах на бэк
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("access");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

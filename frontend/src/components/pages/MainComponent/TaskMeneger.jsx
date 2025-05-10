@@ -36,11 +36,11 @@ const TaskManager = () => {
                 const response = await api.get("/tasks/me");
                 setUsername(response.data.username);
 
-                console.log(
-                    "Запрос прошел успешно за пользовательскими данными прошел успешно"
-                );
+                // console.log(
+                //     "Запрос прошел успешно за пользовательскими данными прошел успешно"
+                // );
                 const userTasks = response.data.notes || [];
-                console.log(userTasks);
+                // console.log(userTasks);
                 const sampleTasks = [
                     {
                         id: createUniqueKey(),
@@ -64,9 +64,9 @@ const TaskManager = () => {
         fetchTasks();
     }, []);
 
-    useEffect(() => {
-        console.log("Текущие задачи", tasks);
-    }, [tasks]);
+    // useEffect(() => {
+    //     console.log("Текущие задачи", tasks);
+    // }, [tasks]);
 
     const showModal = (task) => {
         if (task) {
@@ -127,7 +127,9 @@ const TaskManager = () => {
                     )
                 );
 
-                await api.put("/tasks/edit-task", { ...formattedTask });
+                await api.put(`/tasks/edit-task/${editingTask.id}`, {
+                    ...formattedTask,
+                });
 
                 setIsModalVisible(false);
                 form.resetFields();
@@ -164,15 +166,13 @@ const TaskManager = () => {
             cancelText: "Нет",
             async onOk() {
                 try {
-                    await api.delete("/tasks/delete-task", {
-                        data: { taskId },
-                    }); //  - запрос на удаление заметки в бд
+                    await api.delete(`/tasks/delete-task/${taskId}`); //  - запрос на удаление заметки в бд
                     setTasks((prevTasks) =>
                         prevTasks.filter((task) => task.id !== taskId)
                     );
                 } catch (error) {
                     console.log(
-                        "Произошла ошибка при удалении заметки" + error
+                        "Произошла ошибка при удалении заметки " + error
                     );
                 }
             },
