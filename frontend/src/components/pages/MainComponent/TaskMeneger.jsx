@@ -130,16 +130,6 @@ const TaskManager = () => {
         form.resetFields();
     };
 
-    const startTask = (taskId) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId
-                    ? { ...task, status: "in-progress", column: "in-progress" }
-                    : task
-            )
-        );
-    };
-
     const deleteTask = (taskId) => {
         Modal.confirm({
             title: `Вы уверены, что хотите удалить задачу ${
@@ -165,15 +155,62 @@ const TaskManager = () => {
         });
     };
 
-    const completeTask = (taskId) => {
+    async function needToDo(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "todo",
+            column: "todo",
+        };
+
         setTasks((prevTasks) =>
             prevTasks.map((task) =>
-                task.id === taskId
-                    ? { ...task, status: "completed", column: "completed" }
-                    : task
+                task.id === taskId ? updatedTaskWithNewColumn : task
             )
         );
-    };
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
+
+    async function startTask(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "in-progress",
+            column: "in-progress",
+        };
+
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? updatedTaskWithNewColumn : task
+            )
+        );
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
+
+    async function completeTask(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "completed",
+            column: "completed",
+        };
+
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? updatedTaskWithNewColumn : task
+            )
+        );
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
 
     const getColumnTasks = (columnId) => {
         return sortTasks(tasks.filter((task) => task.status === columnId));
@@ -218,6 +255,7 @@ const TaskManager = () => {
                             showModal={showModal}
                         />
                         <MyTaskColumn
+                            needToDo={needToDo}
                             startTask={startTask}
                             deleteTask={deleteTask}
                             showModal={showModal}
