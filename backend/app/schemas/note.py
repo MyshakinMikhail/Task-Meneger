@@ -39,7 +39,7 @@ class NoteResponse(NoteBase):
     id: int
     user_id: int
     created_at: datetime
-    # updated_at: datetime
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True
