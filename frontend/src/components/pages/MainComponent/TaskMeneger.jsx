@@ -25,58 +25,43 @@ const TaskManager = () => {
     const [editingTask, setEditingTask] = useState(null);
     const [form] = Form.useForm();
     const [sortOption, setSortOption] = useState(null);
-    const username = "Имя пользователя";
-
-    // const [username, setUsername] = useState("Имя пользователя");
+    const [username, setUsername] = useState("Имя пользователя");
 
     // const [isTasksLoading, setIsTasksLoading] = useState(false)
 
     // ПОДГРУЗКА ЗАДАЧ С БЭКА
-
-    // useEffect(() => {
-    //     async function fetchTasks() {
-    //         try {
-    //             const response = await api.get("/tasks/me");
-    //             setUsername(response.data.username)
-
-    //             const userTasks = response.data.tasks || [];\
-    //             const sampleTasks = [
-    //                 {
-    //                     id: createUniqueKey(),
-    //                     title: "Добро пожаловать в TaskMeneger",
-    //                     description:
-    //                         "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
-    //                     priority: "high",
-    //                     dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    //                     status: "todo",
-    //                     column: "todo",
-    //                 },
-    //                 ...userTasks,
-    //             ];
-
-    //             setTasks(sampleTasks);
-    //         } catch (error) {
-    //             console.log("Произошла ошибка при загрузке задач ", error);
-    //         }
-    //     }
-
-    //     fetchTasks();
-    // }, []);
-
     useEffect(() => {
-        const sampleTasks = [
-            {
-                id: "1",
-                title: "Добро пожаловать в TaskMeneger",
-                description:
-                    "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
-                priority: "high",
-                dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-                status: "todo",
-                column: "todo",
-            },
-        ];
-        setTasks(sampleTasks);
+        async function fetchTasks() {
+            try {
+                const response = await api.get("/tasks/me");
+                setUsername(response.data.username);
+
+                console.log(
+                    "Запрос прошел успешно за пользовательскими данными прошел успешно"
+                );
+                const userTasks = response.data.notes || [];
+                console.log(userTasks);
+                const sampleTasks = [
+                    {
+                        id: createUniqueKey(),
+                        title: "Добро пожаловать в TaskMeneger",
+                        description:
+                            "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
+                        priority: "high",
+                        dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                        status: "todo",
+                        column: "todo",
+                    },
+                    ...userTasks,
+                ];
+
+                setTasks(sampleTasks);
+            } catch (error) {
+                console.log("Произошла ошибка при загрузке задач ", error);
+            }
+        }
+
+        fetchTasks();
     }, []);
 
     const showModal = (task) => {
@@ -212,7 +197,7 @@ const TaskManager = () => {
     };
 
     const getColumnTasks = (columnId) => {
-        return sortTasks(tasks.filter((task) => task.column === columnId));
+        return sortTasks(tasks.filter((task) => task.status === columnId));
     };
 
     const sortTasks = (tasks) => {
