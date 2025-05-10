@@ -41,21 +41,7 @@ const TaskManager = () => {
                 // );
                 const userTasks = response.data.notes || [];
                 // console.log(userTasks);
-                const sampleTasks = [
-                    {
-                        id: createUniqueKey(),
-                        title: "Добро пожаловать в TaskMeneger",
-                        description:
-                            "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
-                        priority: "high",
-                        dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-                        status: "todo",
-                        column: "todo",
-                    },
-                    ...userTasks,
-                ];
-
-                setTasks(sampleTasks);
+                setTasks(userTasks);
             } catch (error) {
                 console.log("Произошла ошибка при загрузке задач ", error);
             }
@@ -64,9 +50,9 @@ const TaskManager = () => {
         fetchTasks();
     }, []);
 
-    // useEffect(() => {
-    //     console.log("Текущие задачи", tasks);
-    // }, [tasks]);
+    useEffect(() => {
+        console.log("Текущие задачи", tasks);
+    }, [tasks]);
 
     const showModal = (task) => {
         if (task) {
