@@ -4,7 +4,7 @@ const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 // Создаем экземпляр axios с базовыми настройками
 const api = axios.create({
-    baseURL: VITE_API_URL, //-> Базоывый URL-адрес, по которому идет обращение к серверу. Он добавляется в каждый API запрос
+    baseURL: VITE_API_URL, // -> Базоывый URL-адрес, по которому идет обращение к серверу. Он добавляется в каждый API запрос
     withCredentials: true, // Для автоматического отправления cookie файлов на сервер и получения с сервера
     headers: {
         "Content-Type": "application/json",
@@ -14,7 +14,7 @@ const api = axios.create({
 // Добавляем перехватчик запросов для автоматического добавления токена в url при любых запросах на бэк
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("access");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -36,18 +36,16 @@ api.interceptors.response.use(
         if (
             error.response &&
             error.response.status === 401 &&
-            !originalRequest._retry
+            !originalRequest._retry &&
+            !originalRequest.url.includes("/auth/refresh")
         ) {
+            console.log(
+                "Перехвачена ошибка с бэкенда: " + error.response.data.detail
+            );
             originalRequest._retry = true;
 
             try {
-                const refreshResponse = await axios.post(
-                    "/api/refresh",
-                    {},
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const refreshResponse = await api.post("/auth/refresh", {});
 
                 const newAccessToken = refreshResponse.data.access_token;
                 localStorage.setItem("access", newAccessToken);
@@ -61,7 +59,10 @@ api.interceptors.response.use(
                 ] = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (refreshError) {
-                console.error("Не удалось обновить access токен", refreshError);
+                console.error(
+                    "Не удалось обновить access токен: " +
+                        error.refreshResponse.data.detail
+                );
                 throw refreshError;
             }
         }

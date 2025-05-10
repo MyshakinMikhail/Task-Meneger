@@ -3,6 +3,7 @@ import { Form, Layout, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { v4 as createUniqueKey } from "uuid";
+import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
 import MyModal from "./MyModal/MyModal";
@@ -35,13 +36,13 @@ const TaskManager = () => {
     // useEffect(() => {
     //     async function fetchTasks() {
     //         try {
-    //             const response = await api.get("/api/me");
+    //             const response = await api.get("/tasks/me");
     //             setUsername(response.data.username)
 
     //             const userTasks = response.data.tasks || [];\
     //             const sampleTasks = [
     //                 {
-    //                     id: "1",
+    //                     id: createUniqueKey(),
     //                     title: "Добро пожаловать в TaskMeneger",
     //                     description:
     //                         "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
@@ -108,8 +109,11 @@ const TaskManager = () => {
                 // тут стоят мои id, не из бд !!!
 
                 // тут запрос на бэк
-                // const response = await api.post("/api/add_task", {...formattedTask})
-                // formattedTask.id = response.data.id -> для обновления id, чтобы соответствовало бэку
+                const response = await api.post("/tasks/create-task", {
+                    ...formattedTask,
+                });
+                console.log("Запрос прошел, можно брать данные из запроса");
+                formattedTask.id = response.data.id; // -> для обновления id, чтобы соответствовало бэку
 
                 // замена id на значение из бд ( тут баг )
                 // const new_id = 10;
@@ -124,8 +128,8 @@ const TaskManager = () => {
                 setIsModalVisible(false);
                 form.resetFields();
             });
-        } catch {
-            console.log("Ошибка создания заметки");
+        } catch (error) {
+            console.log("Ошибка создания заметки" + error);
         }
     }
 
@@ -147,7 +151,7 @@ const TaskManager = () => {
                 );
 
                 // тут запрос на бэк
-                // const response = await api.put("/api/edit_task", {...formattedTask})
+                // const response = await api.put("/tasks/edit-task", {...formattedTask})
 
                 setIsModalVisible(false);
                 form.resetFields();
@@ -184,7 +188,7 @@ const TaskManager = () => {
             cancelText: "Нет",
             async onOk() {
                 try {
-                    //await api.delete("/api/delete_task", { data: { taskId } }); //  - запрос на удаление заметки в бд
+                    //await api.delete("/tasks/delete-task", { data: { taskId } }); //  - запрос на удаление заметки в бд
                     setTasks((prevTasks) =>
                         prevTasks.filter((task) => task.id !== taskId)
                     );

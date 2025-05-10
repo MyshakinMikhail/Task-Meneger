@@ -15,13 +15,22 @@ from ..models.users import User
 
 router = APIRouter(prefix="/tasks", tags=["Задачи"])
 
-@router.post("/create-task", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
-async def create_task(note: NoteCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+
+@router.post(
+    "/create-task", response_model=NoteResponse, status_code=status.HTTP_201_CREATED
+)
+async def create_task(
+    note: NoteCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    print("USER - {current_user}")
     db_note = Note(**note.model_dump(), user_id=current_user.id)
     db.add(db_note)
     await db.commit()
     await db.refresh(db_note)
     return db_note
+
 
 @router.put("/edit-task/{note_id}", response_model=NoteResponse)
 async def edit_task(
@@ -37,7 +46,9 @@ async def edit_task(
         db_note = existing_note.scalar_one_or_none()
 
         if db_note is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
+            )
 
         update_data = note_update.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -46,6 +57,7 @@ async def edit_task(
         await db.commit()
         await db.refresh(db_note)
         return db_note
+
 
 @router.delete("/delete-task/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
@@ -61,11 +73,16 @@ async def delete_task(
         await db.commit()
 
         if deleted_count == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
+            )
         return
 
+
 @router.get("/me", response_model=UserResponse)
-async def read_users_me(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def read_users_me(
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+):
     user = await db.execute(
         select(User).where(User.id == current_user.id).options(joinedload(User.notes))
     )

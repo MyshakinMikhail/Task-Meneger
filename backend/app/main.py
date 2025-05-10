@@ -5,9 +5,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, note  # Импортируем новый роутер note
 from .database import engine, Base
-from .models.users import User
-from .models.notes import Note
-import uvicorn
+
+# from .models.users import User
+# from .models.notes import Note
+# import uvicorn
 
 
 @asynccontextmanager
@@ -21,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],  # http://localhost:5173, * - для разработки
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,5 +43,5 @@ async def handle_validation_error(request: Request, exc: RequestValidationError)
     raise HTTPException(status_code=422, detail=error_message)
 
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="localhost", port=8000, reload=True)

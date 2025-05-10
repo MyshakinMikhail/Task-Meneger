@@ -92,7 +92,7 @@ export default function MyTaskCard({
                 >
                     <Text type="secondary">
                         Срок выполнения:{" "}
-                        {dayjs(task.dueDate).format("MMM D, YYYY, hh:mm:ss")}
+                        {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}
                     </Text>
                     {task.status != "completed" && getStatusTag(task)}
                 </div>

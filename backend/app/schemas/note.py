@@ -1,40 +1,46 @@
-# backend/app/schemas/note.py
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import datetime
+
 
 class Priority(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
+
 class Status(str, Enum):
     TODO = "todo"
     IN_PROGRESS = "in-progress"
     COMPLETED = "completed"
 
+
 class NoteBase(BaseModel):
     title: str
     description: str | None = None
     priority: Priority = Priority.MEDIUM
-    dueDate: datetime
-    status: Status = Status.TODO  # Добавляем поле status
+    deadline: datetime = Field(..., alias="dueDate")
+    status: Status = Status.TODO
+
 
 class NoteCreate(NoteBase):
     pass
 
-class NoteUpdate(NoteBase):
+
+class NoteUpdate(BaseModel):
     title: str | None = None
-    dueDate: datetime | None = None
+    description: str | None = None
+    deadline: datetime | None = Field(None, alias="dueDate")
     priority: Priority | None = None
-    status: Status | None = None  # Добавляем поле status для обновления
+    status: Status | None = None
+
 
 class NoteResponse(NoteBase):
     id: int
     user_id: int
     created_at: datetime
-    updated_at: datetime
-    status: Status  # Добавляем поле status для ответа
+    # updated_at: datetime
 
     class Config:
         from_attributes = True
+        populate_by_name = True
