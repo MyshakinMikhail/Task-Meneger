@@ -64,6 +64,10 @@ const TaskManager = () => {
         fetchTasks();
     }, []);
 
+    useEffect(() => {
+        console.log("Текущие задачи", tasks);
+    }, [tasks]);
+
     const showModal = (task) => {
         if (task) {
             setEditingTask(task);
@@ -89,26 +93,14 @@ const TaskManager = () => {
                     column: "todo",
                 };
 
-                setTasks((prevTasks) => [...prevTasks, formattedTask]);
-
-                // тут стоят мои id, не из бд !!!
-
-                // тут запрос на бэк
                 const response = await api.post("/tasks/create-task", {
                     ...formattedTask,
                 });
                 console.log("Запрос прошел, можно брать данные из запроса");
-                formattedTask.id = response.data.id; // -> для обновления id, чтобы соответствовало бэку
-
-                // замена id на значение из бд ( тут баг )
-                // const new_id = 10;
-                // setTasks((prevTasks) =>
-                //     prevTasks.map((task) =>
-                //         task.id === editingTask.id
-                //             ? { ...formattedTask, id: new_id }
-                //             : task
-                //     )
-                // );
+                setTasks((prevTasks) => [
+                    ...prevTasks,
+                    { ...formattedTask, id: response.data.id },
+                ]);
 
                 setIsModalVisible(false);
                 form.resetFields();
@@ -135,8 +127,7 @@ const TaskManager = () => {
                     )
                 );
 
-                // тут запрос на бэк
-                // const response = await api.put("/tasks/edit-task", {...formattedTask})
+                await api.put("/tasks/edit-task", { ...formattedTask });
 
                 setIsModalVisible(false);
                 form.resetFields();
@@ -173,7 +164,9 @@ const TaskManager = () => {
             cancelText: "Нет",
             async onOk() {
                 try {
-                    //await api.delete("/tasks/delete-task", { data: { taskId } }); //  - запрос на удаление заметки в бд
+                    await api.delete("/tasks/delete-task", {
+                        data: { taskId },
+                    }); //  - запрос на удаление заметки в бд
                     setTasks((prevTasks) =>
                         prevTasks.filter((task) => task.id !== taskId)
                     );
