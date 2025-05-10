@@ -39,24 +39,24 @@ async def edit_task(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    async with db.begin():
-        existing_note = await db.execute(
-            select(Note).where(Note.id == note_id, Note.user_id == current_user.id)
+    # async with db.begin():
+    existing_note = await db.execute(
+        select(Note).where(Note.id == note_id, Note.user_id == current_user.id)
+    )
+    db_note = existing_note.scalar_one_or_none()
+
+    if db_note is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
         )
-        db_note = existing_note.scalar_one_or_none()
 
-        if db_note is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Заметка не найдена"
-            )
+    update_data = note_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_note, key, value)
 
-        update_data = note_update.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_note, key, value)
-
-        await db.commit()
-        await db.refresh(db_note)
-        return db_note
+    await db.commit()
+    await db.refresh(db_note)
+    return db_note
 
 
 @router.delete("/delete-task/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
