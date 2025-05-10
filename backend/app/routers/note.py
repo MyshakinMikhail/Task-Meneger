@@ -86,5 +86,5 @@ async def read_users_me(
     user = await db.execute(
         select(User).where(User.id == current_user.id).options(joinedload(User.notes))
     )
-    current_user_with_notes = user.scalar_one()
+    current_user_with_notes = user.unique().scalar_one()
     return current_user_with_notes
