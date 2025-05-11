@@ -1,5 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
+import api from "./../../../utils/api";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -11,6 +12,20 @@ export default function MyModal({
     form,
     isModalVisible,
 }) {
+    async function doRequestToGigachat(title) {
+        try {
+            const response = await api.get("/gigachat/get_description", {
+                params: { title: String(title) },
+            });
+            console.log(
+                "Запрос к гигачат прошел успешно, вот описание: ",
+                response.data.description
+            );
+        } catch (error) {
+            console.error("Ошибка в запросе с GigaChat:", error);
+        }
+    }
+
     return (
         <Modal
             title={editingTask ? "Редактировать задачу" : "Создать задачу"}
@@ -71,7 +86,11 @@ export default function MyModal({
                     />
                 </Form.Item>
                 <Form.Item>
-                    <Button color="primary" variant="solid">
+                    <Button
+                        color="primary"
+                        variant="solid"
+                        onClick={doRequestToGigachat}
+                    >
                         Сгенерировать описание по заголовку с Gigachat
                     </Button>
                 </Form.Item>
