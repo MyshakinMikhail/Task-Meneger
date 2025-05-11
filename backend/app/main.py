@@ -25,6 +25,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173"
     ],  # http://localhost:5173, * - для разработки
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +38,6 @@ app.include_router(note.router)  # Подключаем роутер note
 @app.get("/", tags=["Главная"])
 async def root():
     return {"message": "FastAPI auth app is running!"}
-
 
 @app.exception_handler(RequestValidationError)
 async def handle_validation_error(request: Request, exc: RequestValidationError):
