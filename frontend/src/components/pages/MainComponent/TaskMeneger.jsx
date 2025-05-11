@@ -36,9 +36,6 @@ const TaskManager = () => {
                 const response = await api.get("/tasks/me");
                 setUsername(response.data.username);
 
-                // console.log(
-                //     "Запрос прошел успешно за пользовательскими данными прошел успешно"
-                // );
                 const userTasks = response.data.notes || [];
                 // console.log(userTasks);
                 setTasks(userTasks);
@@ -51,8 +48,8 @@ const TaskManager = () => {
     }, []);
 
     useEffect(() => {
-        console.log("Текущие задачи", tasks);
-    }, [tasks]);
+        console.log("Задача, которую меняем", editingTask);
+    }, [editingTask]);
 
     const showModal = (task) => {
         if (task) {
@@ -267,6 +264,7 @@ const TaskManager = () => {
                 </Layout>
             </Layout>
             <MyModal
+                setTasks={setTasks}
                 handleCancel={handleCancel}
                 addTask={addTask}
                 editTask={editTask}

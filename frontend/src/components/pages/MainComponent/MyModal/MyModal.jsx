@@ -12,15 +12,17 @@ export default function MyModal({
     form,
     isModalVisible,
 }) {
-    async function doRequestToGigachat(title) {
+    async function doRequestToGigachat() {
         try {
+            const title = form.getFieldValue("title");
+
             const response = await api.get("/gigachat/get_description", {
-                params: { title: String(title) },
+                params: { title: title },
             });
-            console.log(
-                "Запрос к гигачат прошел успешно, вот описание: ",
-                response.data.description
-            );
+
+            form.setFieldsValue({
+                description: response.data.description,
+            });
         } catch (error) {
             console.error("Ошибка в запросе с GigaChat:", error);
         }
