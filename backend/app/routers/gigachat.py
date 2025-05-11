@@ -1,5 +1,7 @@
 from fastapi import APIRouter
+
 from gigachat import GigaChat
+
 from ..config import GIGACHAT_AUTH_TOKEN
 
 router = APIRouter()
@@ -9,7 +11,7 @@ model = GigaChat(
     scope="GIGACHAT_API_PERS",
     model="GigaChat",
     verify_ssl_certs=True,
-    ca_bundle_file="backend/cert/russian_trusted_root_ca.cer",
+    ca_bundle_file="cert/russian_trusted_root_ca.cer",
 )
 
 
