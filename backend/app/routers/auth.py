@@ -11,6 +11,7 @@ from ..services.email import send_verification_email
 
 router = APIRouter()
 
+
 @router.post("/register", response_model=Token)
 async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
     existing_user = await db.execute(select(User).filter(User.email == user_data.email))
@@ -27,28 +28,31 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
     verification_token = create_email_verification_token(user.email)
     user.verification_token = verification_token
     user.token_expiration = datetime.now(timezone.utc) + timedelta(hours=24)
-    
+
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    
+
     await send_verification_email(user.email, verification_token)
 
     return JSONResponse(
         content={"message": "Письмо с подтверждением отправлено на вашу почту"},
-        status_code=201
+        status_code=201,
     )
+
 
 @router.post("/login", response_model=Token)
 async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
     user = await db.execute(select(User).filter(User.email == user_data.email))
     user = user.scalars().first()
     if not user or not verify_password(user_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Неверная почта или пароль",)
-    
+        raise HTTPException(
+            status_code=401,
+            detail="Неверная почта или пароль",
+        )
+
     if not user.is_verified:
         raise HTTPException(status_code=403, detail="Подтвердите вашу почту")
-
 
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token({"sub": user.email})
@@ -65,7 +69,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
         value=refresh_token,
         httponly=True,
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
-        secure=True,
+        secure=False,
         samesite="Lax",
     )
     return response
@@ -75,6 +79,8 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
 async def refresh_token(
     db: AsyncSession = Depends(get_db), refresh_token: str = Cookie(None)
 ):
+    # print("REFRESH TOKEN В КУКЕ:", refresh_token)
+
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token утерян")
 
@@ -102,7 +108,7 @@ async def refresh_token(
         value=new_refresh_token,
         httponly=True,
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
-        secure=True,
+        secure=False,
         samesite="Lax",
     )
     return response
@@ -121,31 +127,34 @@ async def logout(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie
                 user.refresh_token = None
                 await db.commit()
                 await db.refresh(user)
+    # else:
+    #     raise HTTPException(status_code=404, detail="refresh token отсутствует")
 
     response = JSONResponse(content={"message": "Successfully logged out"})
     response.delete_cookie("refresh_token")
     return response
+
 
 @router.get("/verify-email/{token}")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     email = verify_email_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Недействительный токен")
-    
+
     user = await db.execute(select(User).filter(User.email == email))
     user = user.scalars().first()
-    
+
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
-    
+
     if user.is_verified:
         return {"message": "Почта уже подтверждена"}
-    
+
     if datetime.now(timezone.utc) > user.token_expiration:
         raise HTTPException(status_code=400, detail="Срок действия токена истёк")
-    
+
     user.is_verified = True
     user.verification_token = None
     await db.commit()
-    
+
     return {"message": "Почта успешно подтверждена"}
