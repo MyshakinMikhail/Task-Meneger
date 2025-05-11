@@ -3,6 +3,7 @@ import MyTaskCard from "./../MyTaskCard/MyTaskCard";
 import MyTaskColumnStyles from "./MyTaskColumnStyles.module.css";
 
 export default function MyTaskColumn({
+    needToDo,
     columns,
     getColumnTasks,
     showModal,
@@ -32,6 +33,7 @@ export default function MyTaskColumn({
                             <MyTaskCard
                                 key={task.id}
                                 task={task}
+                                needToDo={needToDo}
                                 showModal={showModal}
                                 deleteTask={deleteTask}
                                 startTask={startTask}

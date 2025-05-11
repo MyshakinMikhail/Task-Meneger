@@ -5,6 +5,7 @@ import MyTooltips from "./../MyTooltips/MyTooltips";
 const { Text } = Typography;
 
 export default function MyTaskCard({
+    needToDo,
     task,
     showModal,
     deleteTask,
@@ -52,6 +53,7 @@ export default function MyTaskCard({
             size="small"
             style={{ marginBottom: "8px" }}
             actions={MyTooltips({
+                needToDo,
                 task,
                 showModal,
                 deleteTask,
@@ -92,7 +94,7 @@ export default function MyTaskCard({
                 >
                     <Text type="secondary">
                         Срок выполнения:{" "}
-                        {dayjs(task.dueDate).format("MMM D, YYYY, hh:mm:ss")}
+                        {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}
                     </Text>
                     {task.status != "completed" && getStatusTag(task)}
                 </div>

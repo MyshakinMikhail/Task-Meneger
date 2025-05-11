@@ -3,10 +3,12 @@ import {
     CheckOutlined,
     DeleteOutlined,
     EditOutlined,
+    RollbackOutlined,
 } from "@ant-design/icons";
 import { Tooltip } from "antd";
 
 export default function MyTooltips({
+    needToDo,
     task,
     showModal,
     deleteTask,
@@ -19,6 +21,9 @@ export default function MyTooltips({
         </Tooltip>,
         <Tooltip key="delete" title="Удалить">
             <DeleteOutlined onClick={() => deleteTask(task.id)} />
+        </Tooltip>,
+        <Tooltip key="todo" title="Вернуть в нужно сделать">
+            <RollbackOutlined onClick={() => needToDo(task.id)} />
         </Tooltip>,
         <Tooltip key="in-progres" title="Отметить начатым">
             <CheckOutlined onClick={() => startTask(task.id)} />

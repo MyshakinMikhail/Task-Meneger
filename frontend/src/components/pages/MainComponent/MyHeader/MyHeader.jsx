@@ -2,6 +2,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout } from "antd";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../../../hooks/useAuthStore";
+import api from "./../../../utils/api";
 import classes from "./MyHeader.module.css";
 
 const { Header } = Layout;
@@ -21,7 +22,7 @@ export default function MyHeader({ username }) {
         email: "john.doe@example.com",
     };
 
-    function handleMenuClick({ key }) {
+    async function handleMenuClick({ key }) {
         switch (key) {
             case "profile":
                 console.log("Click on profile");
@@ -30,13 +31,23 @@ export default function MyHeader({ username }) {
                 console.log("Click on settings");
                 break;
             case "logout":
-                useAuthStore.getState().logout();
-                console.log("Вы вышли из системы");
-                console.log(
-                    "Текущее состояние accessToken - " +
-                        localStorage.getItem("access")
-                ); // должен быть undefined
-                navigate("/login");
+                try {
+                    const response = await api.post("/auth/logout");
+                    console.log("Ответ с бэка:", response.data.message);
+
+                    useAuthStore.getState().logout();
+                    console.log("Вы вышли из системы");
+                    console.log(
+                        "Текущее состояние accessToken - " +
+                            localStorage.getItem("access")
+                    );
+                    navigate("/login");
+                } catch (error) {
+                    console.error(
+                        "Ошибка при выходе:",
+                        error.response.data.detail
+                    );
+                }
                 break;
             default:
                 break;

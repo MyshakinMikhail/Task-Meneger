@@ -3,6 +3,7 @@ import { Form, Layout, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { v4 as createUniqueKey } from "uuid";
+import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
 import MyModal from "./MyModal/MyModal";
@@ -24,59 +25,34 @@ const TaskManager = () => {
     const [editingTask, setEditingTask] = useState(null);
     const [form] = Form.useForm();
     const [sortOption, setSortOption] = useState(null);
-    const username = "Имя пользователя";
-
-    // const [username, setUsername] = useState("Имя пользователя");
+    const [username, setUsername] = useState("Имя пользователя");
 
     // const [isTasksLoading, setIsTasksLoading] = useState(false)
 
     // ПОДГРУЗКА ЗАДАЧ С БЭКА
+    useEffect(() => {
+        async function fetchTasks() {
+            try {
+                const response = await api.get("/tasks/me");
+                setUsername(response.data.username);
 
-    // useEffect(() => {
-    //     async function fetchTasks() {
-    //         try {
-    //             const response = await api.get("/api/me");
-    //             setUsername(response.data.username)
+                // console.log(
+                //     "Запрос прошел успешно за пользовательскими данными прошел успешно"
+                // );
+                const userTasks = response.data.notes || [];
+                // console.log(userTasks);
+                setTasks(userTasks);
+            } catch (error) {
+                console.log("Произошла ошибка при загрузке задач ", error);
+            }
+        }
 
-    //             const userTasks = response.data.tasks || [];\
-    //             const sampleTasks = [
-    //                 {
-    //                     id: "1",
-    //                     title: "Добро пожаловать в TaskMeneger",
-    //                     description:
-    //                         "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
-    //                     priority: "high",
-    //                     dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-    //                     status: "todo",
-    //                     column: "todo",
-    //                 },
-    //                 ...userTasks,
-    //             ];
-
-    //             setTasks(sampleTasks);
-    //         } catch (error) {
-    //             console.log("Произошла ошибка при загрузке задач ", error);
-    //         }
-    //     }
-
-    //     fetchTasks();
-    // }, []);
+        fetchTasks();
+    }, []);
 
     useEffect(() => {
-        const sampleTasks = [
-            {
-                id: "1",
-                title: "Добро пожаловать в TaskMeneger",
-                description:
-                    "В данном приложении вы можете автоматически сгенерировать описание заметки по ее заголовку",
-                priority: "high",
-                dueDate: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-                status: "todo",
-                column: "todo",
-            },
-        ];
-        setTasks(sampleTasks);
-    }, []);
+        console.log("Текущие задачи", tasks);
+    }, [tasks]);
 
     const showModal = (task) => {
         if (task) {
@@ -103,29 +79,20 @@ const TaskManager = () => {
                     column: "todo",
                 };
 
-                setTasks((prevTasks) => [...prevTasks, formattedTask]);
-
-                // тут стоят мои id, не из бд !!!
-
-                // тут запрос на бэк
-                // const response = await api.post("/api/add_task", {...formattedTask})
-                // formattedTask.id = response.data.id -> для обновления id, чтобы соответствовало бэку
-
-                // замена id на значение из бд ( тут баг )
-                // const new_id = 10;
-                // setTasks((prevTasks) =>
-                //     prevTasks.map((task) =>
-                //         task.id === editingTask.id
-                //             ? { ...formattedTask, id: new_id }
-                //             : task
-                //     )
-                // );
+                const response = await api.post("/tasks/create-task", {
+                    ...formattedTask,
+                });
+                console.log("Запрос прошел, можно брать данные из запроса");
+                setTasks((prevTasks) => [
+                    ...prevTasks,
+                    { ...formattedTask, id: response.data.id },
+                ]);
 
                 setIsModalVisible(false);
                 form.resetFields();
             });
-        } catch {
-            console.log("Ошибка создания заметки");
+        } catch (error) {
+            console.log("Ошибка создания заметки" + error);
         }
     }
 
@@ -146,8 +113,9 @@ const TaskManager = () => {
                     )
                 );
 
-                // тут запрос на бэк
-                // const response = await api.put("/api/edit_task", {...formattedTask})
+                await api.put(`/tasks/edit-task/${editingTask.id}`, {
+                    ...formattedTask,
+                });
 
                 setIsModalVisible(false);
                 form.resetFields();
@@ -162,16 +130,6 @@ const TaskManager = () => {
         form.resetFields();
     };
 
-    const startTask = (taskId) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId
-                    ? { ...task, status: "in-progress", column: "in-progress" }
-                    : task
-            )
-        );
-    };
-
     const deleteTask = (taskId) => {
         Modal.confirm({
             title: `Вы уверены, что хотите удалить задачу ${
@@ -184,31 +142,78 @@ const TaskManager = () => {
             cancelText: "Нет",
             async onOk() {
                 try {
-                    //await api.delete("/api/delete_task", { data: { taskId } }); //  - запрос на удаление заметки в бд
+                    await api.delete(`/tasks/delete-task/${taskId}`); //  - запрос на удаление заметки в бд
                     setTasks((prevTasks) =>
                         prevTasks.filter((task) => task.id !== taskId)
                     );
                 } catch (error) {
                     console.log(
-                        "Произошла ошибка при удалении заметки" + error
+                        "Произошла ошибка при удалении заметки " + error
                     );
                 }
             },
         });
     };
 
-    const completeTask = (taskId) => {
+    async function needToDo(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "todo",
+            column: "todo",
+        };
+
         setTasks((prevTasks) =>
             prevTasks.map((task) =>
-                task.id === taskId
-                    ? { ...task, status: "completed", column: "completed" }
-                    : task
+                task.id === taskId ? updatedTaskWithNewColumn : task
             )
         );
-    };
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
+
+    async function startTask(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "in-progress",
+            column: "in-progress",
+        };
+
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? updatedTaskWithNewColumn : task
+            )
+        );
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
+
+    async function completeTask(taskId) {
+        const updatedTask = tasks.find((task) => task.id === taskId);
+        const updatedTaskWithNewColumn = {
+            ...updatedTask,
+            status: "completed",
+            column: "completed",
+        };
+
+        setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+                task.id === taskId ? updatedTaskWithNewColumn : task
+            )
+        );
+
+        await api.put(`/tasks/edit-task/${taskId}`, {
+            ...updatedTaskWithNewColumn,
+        });
+    }
 
     const getColumnTasks = (columnId) => {
-        return sortTasks(tasks.filter((task) => task.column === columnId));
+        return sortTasks(tasks.filter((task) => task.status === columnId));
     };
 
     const sortTasks = (tasks) => {
@@ -250,6 +255,7 @@ const TaskManager = () => {
                             showModal={showModal}
                         />
                         <MyTaskColumn
+                            needToDo={needToDo}
                             startTask={startTask}
                             deleteTask={deleteTask}
                             showModal={showModal}
