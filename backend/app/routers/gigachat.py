@@ -4,6 +4,7 @@ from gigachat import GigaChat
 
 from ..config import GIGACHAT_AUTH_TOKEN
 
+
 router = APIRouter()
 
 model = GigaChat(
