@@ -1,11 +1,8 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete
 from sqlalchemy.orm import joinedload
-
 from ..database import get_db
 from ..models.notes import Note
 from ..schemas.note import NoteCreate, NoteUpdate, NoteResponse
@@ -13,7 +10,8 @@ from ..schemas.user import UserResponse
 from ..security.security import get_current_user
 from ..models.users import User
 
-router = APIRouter(prefix="/tasks", tags=["Задачи"])
+
+router = APIRouter()
 
 
 @router.post(
@@ -39,7 +37,6 @@ async def edit_task(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # async with db.begin():
     existing_note = await db.execute(
         select(Note).where(Note.id == note_id, Note.user_id == current_user.id)
     )
@@ -65,7 +62,6 @@ async def delete_task(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # async with db.begin():
     result = await db.execute(
         delete(Note).where(Note.id == note_id, Note.user_id == current_user.id)
     )
