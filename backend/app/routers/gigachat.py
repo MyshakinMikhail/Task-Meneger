@@ -1,7 +1,5 @@
 from fastapi import APIRouter
-
 from gigachat import GigaChat
-
 from ..config import GIGACHAT_AUTH_TOKEN
 
 

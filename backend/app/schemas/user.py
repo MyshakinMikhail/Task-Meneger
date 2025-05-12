@@ -1,7 +1,6 @@
 from pydantic import BaseModel, field_validator
 import re
 from typing import Optional, List
-
 from .note import NoteResponse
 
 

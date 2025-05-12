@@ -23,14 +23,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/auth", tags=["Аутентификация"])
-app.include_router(note.router, prefix="/tasks", tags=["Задачи"])
-app.include_router(gigachat.router, prefix="/gigachat", tags=["ГигаЧат"])
-
 
 @app.get("/", tags=["Главная"])
 async def root():
     return {"message": "FastAPI auth app is running!"}
+
+
+app.include_router(auth.router, prefix="/auth", tags=["Аутентификация"])
+app.include_router(note.router, prefix="/tasks", tags=["Задачи"])
+app.include_router(gigachat.router, prefix="/gigachat", tags=["ГигаЧат"])
 
 
 @app.exception_handler(RequestValidationError)

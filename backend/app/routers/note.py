@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete
 from sqlalchemy.orm import joinedload
-
 from ..database import get_db
 from ..models.notes import Note
 from ..schemas.note import NoteCreate, NoteUpdate, NoteResponse
