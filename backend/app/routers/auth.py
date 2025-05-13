@@ -9,6 +9,7 @@ from ..database import get_db
 from ..config import REFRESH_TOKEN_EXPIRE_DAYS
 from ..services.email import send_verification_email
 
+
 router = APIRouter()
 
 
@@ -79,7 +80,6 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
 async def refresh_token(
     db: AsyncSession = Depends(get_db), refresh_token: str = Cookie(None)
 ):
-    # print("REFRESH TOKEN В КУКЕ:", refresh_token)
 
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token утерян")
@@ -127,8 +127,6 @@ async def logout(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie
                 user.refresh_token = None
                 await db.commit()
                 await db.refresh(user)
-    # else:
-    #     raise HTTPException(status_code=404, detail="refresh token отсутствует")
 
     response = JSONResponse(content={"message": "Successfully logged out"})
     response.delete_cookie("refresh_token")

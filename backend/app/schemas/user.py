@@ -1,9 +1,8 @@
 from pydantic import BaseModel, field_validator
 import re
 from typing import Optional, List
-from datetime import datetime
+from .note import NoteResponse
 
-from .note import NoteResponse  # Импортируем NoteResponse
 
 class UserRegister(BaseModel):
     username: str
@@ -21,25 +20,30 @@ class UserRegister(BaseModel):
             )
         return v
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        if not re.fullmatch(r'^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$', v):
+        if not re.fullmatch(
+            r"^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$",
+            v,
+        ):
             raise ValueError("Неверный формат email")
-        local_part, domain = v.split('@')
+        local_part, domain = v.split("@")
         if len(local_part) > 64:
             raise ValueError("Локальная часть email не должна превышать 64 символа")
         if len(domain) > 255:
             raise ValueError("Домен не должен превышать 255 символов")
         return v
 
-    @field_validator('password')
+    @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
         if len(v) < 8 or len(v) > 32:
-            raise ValueError('Пароль должен содержать от 8 до 32 символов')
-        if not re.match(r'^[a-zA-Z0-9!@#$%^&*()_+]+$', v):
-            raise ValueError('Пароль содержит недопустимые символы.\nДопустимые символы: a-zA-Z0-9!@#$%^&*()_+')
+            raise ValueError("Пароль должен содержать от 8 до 32 символов")
+        if not re.match(r"^[a-zA-Z0-9!@#$%^&*()_+]+$", v):
+            raise ValueError(
+                "Пароль содержит недопустимые символы.\nДопустимые символы: a-zA-Z0-9!@#$%^&*()_+"
+            )
         return v
 
 
@@ -58,7 +62,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     full_name: Optional[str] = None
-    notes: List[NoteResponse] = []  # Список заметок пользователя
+    notes: List[NoteResponse] = []
 
     class Config:
         from_attributes = True
