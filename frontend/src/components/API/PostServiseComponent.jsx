@@ -16,15 +16,11 @@ export default class PostServiсe {
             if (response.status === 201) {
                 alert("Подтвердите Вашу почту");
             }
-            // navigate("/login");
             console.log("Регистрация пройдена успешно");
         } catch (error) {
-            // обработка ошибок 400, 409, 422 ( ошибка валидации пароля ), 500.
             if (error.response) {
                 switch (error.response.status) {
                     case 409:
-                        setError(error.response.data.detail);
-                        break;
                     case 422:
                         setError(error.response.data.detail);
                         break;
@@ -67,11 +63,7 @@ export default class PostServiсe {
             if (error.response) {
                 switch (error.response.status) {
                     case 403:
-                        setError(error.response.data.detail);
-                        break;
                     case 404:
-                        setError(error.response.data.detail);
-                        break;
                     case 422:
                         setError(error.response.data.detail);
                         break;
