@@ -264,7 +264,6 @@ const TaskManager = () => {
                 </Layout>
             </Layout>
             <MyModal
-                setTasks={setTasks}
                 handleCancel={handleCancel}
                 addTask={addTask}
                 editTask={editTask}
