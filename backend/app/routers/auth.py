@@ -48,7 +48,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
     user = user.scalars().first()
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
-            status_code=401,
+            status_code=422,
             detail="Неверная почта или пароль",
         )
 
