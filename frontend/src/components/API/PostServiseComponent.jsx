@@ -23,12 +23,10 @@ export default class PostServiсe {
             if (error.response) {
                 switch (error.response.status) {
                     case 409:
-                        setError(`${error.response.data.detail}`);
+                        setError(error.response.data.detail);
                         break;
                     case 422:
-                        setError(
-                            "Ошибка валидации: " + error.response.data.detail
-                        );
+                        setError(error.response.data.detail);
                         break;
                     case 500:
                         setError("Ошибка на сервере. Попробуйте позже.");
@@ -69,21 +67,16 @@ export default class PostServiсe {
             if (error.response) {
                 switch (error.response.status) {
                     case 403:
-                        setError("Ошибка: " + error.response.data.detail);
+                        setError(error.response.data.detail);
                         break;
                     case 404:
-                        setError("Ошибка: " + error.response.data.detail);
+                        setError(error.response.data.detail);
                         break;
                     case 422:
-                        setError(
-                            "Ошибка валидации: " + error.response.data.detail
-                        );
+                        setError(error.response.data.detail);
                         break;
                     case 500:
-                        setError(
-                            "Ошибка на сервере. Попробуйте позже. " +
-                                error.response.data.detail
-                        );
+                        setError("Ошибка на сервере. Попробуйте позже. ");
                         break;
                     default:
                         setError("Поизошла ошибка. Попробуйте еще раз.");
