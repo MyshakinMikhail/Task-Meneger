@@ -146,8 +146,10 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
     if user.is_verified:
-        return {"message": "Почта уже подтверждена"}
-
+        return JSONResponse(
+            content={"message": "Почта уже подтверждена"},
+            status_code=201,
+        )
     if datetime.now(timezone.utc) > user.token_expiration:
         raise HTTPException(status_code=400, detail="Срок действия токена истёк")
 
@@ -155,4 +157,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     user.verification_token = None
     await db.commit()
 
-    return {"message": "Почта успешно подтверждена"}
+    return JSONResponse(
+        content={"message": "Почта успешно подтверждена"},
+        status_code=201,
+    )
