@@ -3,6 +3,7 @@ import { Form, Layout, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { v4 as createUniqueKey } from "uuid";
+import useAuthStore from "./../../../hooks/useAuthStore";
 import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
@@ -26,18 +27,18 @@ const TaskManager = () => {
     const [form] = Form.useForm();
     const [sortOption, setSortOption] = useState(null);
     const [username, setUsername] = useState("Имя пользователя");
-
-    // const [isTasksLoading, setIsTasksLoading] = useState(false)
+    const accessToken = useAuthStore((state) => state.accessToken);
 
     // ПОДГРУЗКА ЗАДАЧ С БЭКА
     useEffect(() => {
+        if (!accessToken) return;
+
         async function fetchTasks() {
             try {
                 const response = await api.get("/tasks/me");
                 setUsername(response.data.username);
 
                 const userTasks = response.data.notes || [];
-                // console.log(userTasks);
                 setTasks(userTasks);
             } catch (error) {
                 console.log("Произошла ошибка при загрузке задач ", error);
@@ -45,7 +46,7 @@ const TaskManager = () => {
         }
 
         fetchTasks();
-    }, []);
+    }, [accessToken]);
 
     useEffect(() => {
         console.log("Задача, которую меняем", editingTask);
@@ -70,7 +71,7 @@ const TaskManager = () => {
             form.validateFields().then(async (values) => {
                 const formattedTask = {
                     ...values,
-                    id: createUniqueKey(), // это первичный id, нужен будет id заметки с бэка
+                    id: createUniqueKey(),
                     dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
                     status: "todo",
                     column: "todo",

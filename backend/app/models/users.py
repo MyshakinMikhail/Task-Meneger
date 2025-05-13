@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
-from ..database import Base  # Импортируем Base
-from sqlalchemy.sql import func
+from ..database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -15,4 +15,4 @@ class User(Base):
     verification_token = Column(String(512), nullable=True)
     token_expiration = Column(DateTime(timezone=True), nullable=True)
 
-    notes = relationship("Note", back_populates="user") # Добавляем связь с Note
+    notes = relationship("Note", back_populates="user")

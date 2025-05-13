@@ -9,6 +9,7 @@ from ..database import get_db
 from ..config import REFRESH_TOKEN_EXPIRE_DAYS
 from ..services.email import send_verification_email
 
+
 router = APIRouter()
 
 
@@ -47,7 +48,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
     user = user.scalars().first()
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
-            status_code=401,
+            status_code=422,
             detail="Неверная почта или пароль",
         )
 
@@ -79,7 +80,6 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
 async def refresh_token(
     db: AsyncSession = Depends(get_db), refresh_token: str = Cookie(None)
 ):
-    # print("REFRESH TOKEN В КУКЕ:", refresh_token)
 
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token утерян")
@@ -127,8 +127,6 @@ async def logout(db: AsyncSession = Depends(get_db), refresh_token: str = Cookie
                 user.refresh_token = None
                 await db.commit()
                 await db.refresh(user)
-    # else:
-    #     raise HTTPException(status_code=404, detail="refresh token отсутствует")
 
     response = JSONResponse(content={"message": "Successfully logged out"})
     response.delete_cookie("refresh_token")
@@ -148,8 +146,10 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
     if user.is_verified:
-        return {"message": "Почта уже подтверждена"}
-
+        return JSONResponse(
+            content={"message": "Почта уже подтверждена"},
+            status_code=201,
+        )
     if datetime.now(timezone.utc) > user.token_expiration:
         raise HTTPException(status_code=400, detail="Срок действия токена истёк")
 
@@ -157,4 +157,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     user.verification_token = None
     await db.commit()
 
-    return {"message": "Почта успешно подтверждена"}
+    return JSONResponse(
+        content={"message": "Почта успешно подтверждена"},
+        status_code=201,
+    )

@@ -6,7 +6,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from ..config import (
     SECRET_KEY,
     ALGORITHM,
@@ -16,8 +15,9 @@ from ..config import (
 from ..database import get_db
 from ..models.users import User
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")  # Укажите URL для логина
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: str):
@@ -85,19 +85,15 @@ async def get_current_user(
     payload = decode_token(token)
     print(payload)
     if payload is None:
-        print("Ошибка тут")
         raise credentials_exception
     user_email: str = str(payload.get("sub"))
     if user_email is None:
-        print("Ошибка тут2")
         raise credentials_exception
     try:
         user = await db.execute(select(User).where(User.email == user_email))
         current_user = user.scalar_one_or_none()
         if current_user is None:
-            print("Ошибка тут3")
             raise credentials_exception
         return current_user
     except Exception:
-        print("Ошибка тут4")
         raise credentials_exception

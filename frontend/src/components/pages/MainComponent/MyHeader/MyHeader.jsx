@@ -56,7 +56,7 @@ export default function MyHeader({ username }) {
 
     return (
         <Header className={classes.header}>
-            <div className={classes.logo}>TaskManager</div>
+            <div className={classes.logo}>TaskHive</div>
             <div
                 style={{
                     display: "flex",
