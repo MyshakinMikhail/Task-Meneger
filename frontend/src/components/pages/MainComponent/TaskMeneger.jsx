@@ -234,7 +234,7 @@ const TaskManager = () => {
     };
 
     return (
-        <Layout style={{ minHeight: "100vh", overflow: "auto" }}>
+        <Layout style={{ minHeight: "100vh" }}>
             <MyHeader username={username} />
             <Layout>
                 <MySider colorBgContainer="white" />
@@ -246,6 +246,7 @@ const TaskManager = () => {
                             minHeight: 280,
                             backgroundColor: "white",
                             borderRadius: "7px",
+                            overflow: "auto",
                         }}
                     >
                         <HeaderOfContent
