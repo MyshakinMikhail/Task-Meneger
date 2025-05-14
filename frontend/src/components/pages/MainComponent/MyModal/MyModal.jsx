@@ -1,5 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
+import { useRef } from "react";
 import api from "./../../../utils/api";
 const { TextArea } = Input;
 const { Option } = Select;
@@ -12,6 +13,8 @@ export default function MyModal({
     form,
     isModalVisible,
 }) {
+    const buttonRef = useRef();
+
     async function doRequestToGigachat() {
         try {
             const title = form.getFieldValue("title");
@@ -23,6 +26,8 @@ export default function MyModal({
             form.setFieldsValue({
                 description: response.data.description,
             });
+
+            buttonRef.current?.blur();
         } catch (error) {
             console.error("Ошибка в запросе с GigaChat:", error);
         }
@@ -89,6 +94,7 @@ export default function MyModal({
                 </Form.Item>
                 <Form.Item>
                     <Button
+                        ref={buttonRef}
                         color="primary"
                         variant="solid"
                         onClick={doRequestToGigachat}

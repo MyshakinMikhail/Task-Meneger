@@ -68,9 +68,12 @@ const TaskManager = () => {
 
     function addTask() {
         try {
+            const title = form.getFieldValue("title");
+
             form.validateFields().then(async (values) => {
                 const formattedTask = {
                     ...values,
+                    title: title.charAt(0).toUpperCase() + title.slice(1),
                     id: createUniqueKey(),
                     dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
                     status: "todo",
@@ -99,6 +102,9 @@ const TaskManager = () => {
             form.validateFields().then(async (values) => {
                 const formattedTask = {
                     ...values,
+                    title:
+                        editingTask.title.charAt(0).toUpperCase() +
+                        editingTask.title.slice(1),
                     id: editingTask.id,
                     dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
                     status: editingTask.status,
@@ -234,7 +240,7 @@ const TaskManager = () => {
     };
 
     return (
-        <Layout style={{ minHeight: "100vh", overflow: "auto" }}>
+        <Layout style={{ minHeight: "100vh" }}>
             <MyHeader username={username} />
             <Layout>
                 <MySider colorBgContainer="white" />
@@ -246,6 +252,7 @@ const TaskManager = () => {
                             minHeight: 280,
                             backgroundColor: "white",
                             borderRadius: "7px",
+                            overflow: "auto",
                         }}
                     >
                         <HeaderOfContent

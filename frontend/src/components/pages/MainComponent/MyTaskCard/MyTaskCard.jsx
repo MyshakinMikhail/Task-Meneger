@@ -29,7 +29,7 @@ export default function MyTaskCard({
         const today = dayjs();
         const dueDate = dayjs(task.dueDate);
 
-        if (dueDate.isBefore(today, "day")) {
+        if (task.status != "completed" && dueDate.isBefore(today, "seconds")) {
             return <Tag color="error">Просрочено</Tag>;
         }
     };
@@ -96,7 +96,7 @@ export default function MyTaskCard({
                         Срок выполнения:{" "}
                         {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}
                     </Text>
-                    {task.status != "completed" && getStatusTag(task)}
+                    {getStatusTag(task)}
                 </div>
             </div>
         </Card>
