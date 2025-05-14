@@ -48,7 +48,9 @@ api.interceptors.response.use(
                 const newAccessToken = refreshResponse.data.access_token;
                 localStorage.setItem("access", newAccessToken);
                 useAuthStore.getState().login(newAccessToken);
-
+                console.log(
+                    "Ошибка с невалидным токеном исправлена, все работает исправно!"
+                );
                 api.defaults.headers[
                     "Authorization"
                 ] = `Bearer ${newAccessToken}`;
