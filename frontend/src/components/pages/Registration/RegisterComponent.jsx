@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PostServiсe from "../../API/PostServiseComponent";
 import RegisterForm from "./RegisterFormComponent";
@@ -12,6 +12,7 @@ export default function Register() {
     });
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const regRef = useRef();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,6 +23,7 @@ export default function Register() {
         }
 
         PostServiсe.PostRegistration(form, setError, setIsLoading);
+        regRef.current?.blur();
     };
 
     return (
@@ -29,6 +31,7 @@ export default function Register() {
             <div className="authContainer">
                 <h2>Регистрация</h2>
                 <RegisterForm
+                    regRef={regRef}
                     handleSubmit={handleSubmit}
                     form={form}
                     setForm={setForm}
