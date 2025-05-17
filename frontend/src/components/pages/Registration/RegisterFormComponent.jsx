@@ -4,6 +4,7 @@ export default function RegisterForm({
     setForm,
     error,
     isLoading,
+    regRef,
 }) {
     return (
         <form onSubmit={handleSubmit} className="form">
@@ -42,7 +43,7 @@ export default function RegisterForm({
                 className="input"
             />
             {error && <p className="error">{error}</p>}
-            <button type="submit" className="button">
+            <button type="submit" className="button" ref={regRef}>
                 {isLoading ? "Регистрация..." : "Зарегистрироваться"}
             </button>
         </form>

@@ -8,7 +8,7 @@ async def send_verification_email(email: str, token: str):
     message["From"] = SMTP_USER
     message["To"] = email
     message["Subject"] = "Подтверждение регистрации на TaskHive"
-    message.set_content(f"Перейдите по ссылке: {DOMAIN}/auth/verify-email/{token}")
+    message.set_content(f"Перейдите по ссылке: {DOMAIN}/verify-email/{token}")
 
     await aiosmtplib.send(
         message,
