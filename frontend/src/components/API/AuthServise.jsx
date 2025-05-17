@@ -1,7 +1,7 @@
+import useAuthStore from "../../hooks/useAuthStore";
 import api from "../utils/api";
-import useAuthStore from "./../../hooks/useAuthStore";
 
-export default class PostServiсe {
+export default class AuthServiсe {
     static async PostRegistration(form, setError, setIsLoading) {
         setIsLoading(true);
         setError("");
