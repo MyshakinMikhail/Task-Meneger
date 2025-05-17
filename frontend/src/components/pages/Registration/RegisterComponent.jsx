@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import PostServiсe from "../../API/PostServiseComponent";
+import AuthServiсe from "../../API/AuthServise";
 import RegisterForm from "./RegisterFormComponent";
 
 export default function Register() {
@@ -22,7 +22,7 @@ export default function Register() {
             return;
         }
 
-        PostServiсe.PostRegistration(form, setError, setIsLoading);
+        AuthServiсe.PostRegistration(form, setError, setIsLoading);
         regRef.current?.blur();
     };
 
