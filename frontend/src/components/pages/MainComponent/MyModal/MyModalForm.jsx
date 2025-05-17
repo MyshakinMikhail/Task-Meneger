@@ -1,5 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
+import useTasks from "./../../../../hooks/useTasks";
 import Crud from "./../../../API/CRUD";
 const { TextArea } = Input;
 const { Option } = Select;
@@ -9,10 +10,11 @@ export default function MyModalFrom({
     editingTask,
     isModalVisible,
     setIsModalVisible,
-    setTasks,
     buttonRef,
     doRequestToGigachat,
 }) {
+    const { setTasks } = useTasks();
+
     const handleCancel = () => {
         setIsModalVisible(false);
         form.resetFields();

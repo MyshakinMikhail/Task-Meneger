@@ -7,7 +7,6 @@ export default function MyModal({
     form,
     isModalVisible,
     setIsModalVisible,
-    setTasks,
 }) {
     const buttonRef = useRef();
 
@@ -35,7 +34,6 @@ export default function MyModal({
             editingTask={editingTask}
             isModalVisible={isModalVisible}
             setIsModalVisible={setIsModalVisible}
-            setTasks={setTasks}
             buttonRef={buttonRef}
             doRequestToGigachat={doRequestToGigachat}
         ></MyModalFrom>

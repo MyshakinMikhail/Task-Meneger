@@ -1,10 +1,9 @@
-import { Form, Layout, Modal } from "antd";
+import { Form, Layout } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Crud from "../../API/CRUD";
 import useAuthStore from "./../../../hooks/useAuthStore";
 import useTasks from "./../../../hooks/useTasks";
-import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
 import MyModal from "./MyModal/MyModal";
@@ -20,7 +19,6 @@ const TaskManager = () => {
         { id: "completed", title: "Выполнены", color: "#f6ffed" },
     ];
 
-    // const [tasks, setTasks] = useState([]);
     const { tasks, setTasks } = useTasks();
     const [columns] = useState(initialColumns);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -48,67 +46,6 @@ const TaskManager = () => {
         }
         setIsModalVisible(true);
     };
-
-    const deleteTask = (taskId) => {
-        Crud.DeleteTasks(Modal, taskId, tasks, setTasks);
-    };
-
-    async function needToDo(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "todo",
-            column: "todo",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
-
-    async function startTask(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "in-progress",
-            column: "in-progress",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
-
-    async function completeTask(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "completed",
-            column: "completed",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
 
     const getColumnTasks = (columnId) => {
         return sortTasks(tasks.filter((task) => task.status === columnId));
@@ -139,25 +76,12 @@ const TaskManager = () => {
             <Layout>
                 <MySider colorBgContainer="white" />
                 <Layout style={{ padding: "24px 24px 24px" }}>
-                    <Content
-                        style={{
-                            padding: 24,
-                            margin: 0,
-                            minHeight: 280,
-                            backgroundColor: "white",
-                            borderRadius: "7px",
-                            overflow: "auto",
-                        }}
-                    >
+                    <Content>
                         <HeaderOfContent
                             setSortOption={setSortOption}
                             showModal={showModal}
                         />
                         <MyTaskColumn
-                            needToDo={needToDo}
-                            startTask={startTask}
-                            completeTask={completeTask}
-                            deleteTask={deleteTask}
                             showModal={showModal}
                             getColumnTasks={getColumnTasks}
                             columns={columns}
@@ -170,7 +94,6 @@ const TaskManager = () => {
                 form={form}
                 isModalVisible={isModalVisible}
                 setIsModalVisible={setIsModalVisible}
-                setTasks={setTasks}
             />
         </Layout>
     );
