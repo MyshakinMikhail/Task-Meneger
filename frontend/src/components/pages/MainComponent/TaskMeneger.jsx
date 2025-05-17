@@ -1,8 +1,7 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Form, Layout, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { v4 as createUniqueKey } from "uuid";
+import Crud from "../../API/CRUD";
 import useAuthStore from "./../../../hooks/useAuthStore";
 import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
@@ -29,28 +28,10 @@ const TaskManager = () => {
     const [username, setUsername] = useState("Имя пользователя");
     const accessToken = useAuthStore((state) => state.accessToken);
 
-    // ПОДГРУЗКА ЗАДАЧ С БЭКА
     useEffect(() => {
         if (!accessToken) return;
-
-        async function fetchTasks() {
-            try {
-                const response = await api.get("/tasks/me");
-                setUsername(response.data.username);
-
-                const userTasks = response.data.notes || [];
-                setTasks(userTasks);
-            } catch (error) {
-                console.log("Произошла ошибка при загрузке задач ", error);
-            }
-        }
-
-        fetchTasks();
+        Crud.GetTasks(setUsername, setTasks);
     }, [accessToken]);
-
-    useEffect(() => {
-        console.log("Задача, которую меняем", editingTask);
-    }, [editingTask]);
 
     const showModal = (task) => {
         if (task) {
@@ -66,97 +47,8 @@ const TaskManager = () => {
         setIsModalVisible(true);
     };
 
-    function addTask() {
-        try {
-            const title = form.getFieldValue("title");
-
-            form.validateFields().then(async (values) => {
-                const formattedTask = {
-                    ...values,
-                    title: title.charAt(0).toUpperCase() + title.slice(1),
-                    id: createUniqueKey(),
-                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
-                    status: "todo",
-                    column: "todo",
-                };
-
-                const response = await api.post("/tasks/create-task", {
-                    ...formattedTask,
-                });
-                console.log("Запрос прошел, можно брать данные из запроса");
-                setTasks((prevTasks) => [
-                    ...prevTasks,
-                    { ...formattedTask, id: response.data.id },
-                ]);
-
-                setIsModalVisible(false);
-                form.resetFields();
-            });
-        } catch (error) {
-            console.log("Ошибка создания заметки" + error);
-        }
-    }
-
-    function editTask() {
-        try {
-            form.validateFields().then(async (values) => {
-                const formattedTask = {
-                    ...values,
-                    title:
-                        editingTask.title.charAt(0).toUpperCase() +
-                        editingTask.title.slice(1),
-                    id: editingTask.id,
-                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
-                    status: editingTask.status,
-                    column: editingTask.column,
-                };
-
-                setTasks((prevTasks) =>
-                    prevTasks.map((task) =>
-                        task.id === editingTask.id ? formattedTask : task
-                    )
-                );
-
-                await api.put(`/tasks/edit-task/${editingTask.id}`, {
-                    ...formattedTask,
-                });
-
-                setIsModalVisible(false);
-                form.resetFields();
-            });
-        } catch {
-            console.log("Ошибка редактирования заметки");
-        }
-    }
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        form.resetFields();
-    };
-
     const deleteTask = (taskId) => {
-        Modal.confirm({
-            title: `Вы уверены, что хотите удалить задачу ${
-                tasks.filter((task) => task.id == taskId)[0].title
-            }?`,
-            icon: <ExclamationCircleOutlined />,
-            content: "Это действие не может быть проигнорировано.",
-            okText: "Да",
-            okType: "danger",
-            cancelText: "Нет",
-            async onOk() {
-                try {
-                    await api.delete(`/tasks/delete-task/${taskId}`); //  - запрос на удаление заметки в бд
-                    setTasks((prevTasks) =>
-                        prevTasks.filter((task) => task.id !== taskId)
-                    );
-                } catch (error) {
-                    console.log(
-                        "Произошла ошибка при удалении заметки " + error
-                    );
-                }
-            },
-        });
+        Crud.DeleteTasks(Modal, taskId, tasks, setTasks);
     };
 
     async function needToDo(taskId) {
@@ -262,9 +154,9 @@ const TaskManager = () => {
                         <MyTaskColumn
                             needToDo={needToDo}
                             startTask={startTask}
+                            completeTask={completeTask}
                             deleteTask={deleteTask}
                             showModal={showModal}
-                            completeTask={completeTask}
                             getColumnTasks={getColumnTasks}
                             columns={columns}
                         />
@@ -272,13 +164,11 @@ const TaskManager = () => {
                 </Layout>
             </Layout>
             <MyModal
-                setTasks={setTasks}
-                handleCancel={handleCancel}
-                addTask={addTask}
-                editTask={editTask}
-                form={form}
                 editingTask={editingTask}
+                form={form}
                 isModalVisible={isModalVisible}
+                setIsModalVisible={setIsModalVisible}
+                setTasks={setTasks}
             />
         </Layout>
     );
