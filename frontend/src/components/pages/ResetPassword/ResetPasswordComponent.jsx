@@ -13,23 +13,25 @@ export default function ResetPassword() {
 
     return (
         <div className="container">
-            <h2>Восстановление пароля</h2>
-            <form onSubmit={handleSubmit} className="form">
-                <input
-                    type="email"
-                    placeholder="Введите ваш Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="input"
-                />
-                <button type="submit" className="button">
-                    Восстановить
-                </button>
-            </form>
-            <p>
-                <Link to="/login">Вернуться к входу</Link>
-            </p>
+            <div className="authContainer">
+                <h2>Восстановление пароля</h2>
+                <form onSubmit={handleSubmit} className="form">
+                    <input
+                        type="email"
+                        placeholder="Введите ваш Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="input"
+                    />
+                    <button type="submit" className="button">
+                        Восстановить
+                    </button>
+                </form>
+                <p>
+                    <Link to="/login">Вернуться к входу</Link>
+                </p>
+            </div>
         </div>
     );
 }
