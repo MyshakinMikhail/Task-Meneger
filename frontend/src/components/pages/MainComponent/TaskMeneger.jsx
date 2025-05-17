@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Crud from "../../API/CRUD";
 import useAuthStore from "./../../../hooks/useAuthStore";
+import useTasks from "./../../../hooks/useTasks";
 import api from "./../../utils/api";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
@@ -19,7 +20,8 @@ const TaskManager = () => {
         { id: "completed", title: "Выполнены", color: "#f6ffed" },
     ];
 
-    const [tasks, setTasks] = useState([]);
+    // const [tasks, setTasks] = useState([]);
+    const { tasks, setTasks } = useTasks();
     const [columns] = useState(initialColumns);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
