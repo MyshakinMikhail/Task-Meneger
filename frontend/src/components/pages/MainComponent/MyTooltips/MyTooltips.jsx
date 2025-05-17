@@ -6,15 +6,18 @@ import {
     RollbackOutlined,
 } from "@ant-design/icons";
 import { Tooltip } from "antd";
+import { useTooltipsActions } from "./../../../../hooks/useTooltipsActions";
 
 export default function MyTooltips({
-    needToDo,
+    // needToDo,
     task,
     showModal,
     deleteTask,
     startTask,
     completeTask,
 }) {
+    const { needToDo } = useTooltipsActions();
+
     return [
         <Tooltip key="edit" title="Редактировать">
             <EditOutlined onClick={() => showModal(task)} />
