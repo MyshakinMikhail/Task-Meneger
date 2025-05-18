@@ -12,7 +12,6 @@ export default function VerifyEmail() {
             try {
                 const response = await api.get(`/auth/verify-email/${token}`);
 
-                console.log("1)");
                 if (response.status == 201) {
                     setStatus("success");
                     setMessage(response.data.message);
