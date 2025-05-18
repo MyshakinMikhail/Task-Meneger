@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 
 from ..security.security import (
@@ -18,12 +19,18 @@ router = APIRouter()
 @router.get("/send-message")
 async def send_reset_password_email(email: str, db: AsyncSession = Depends(get_db)):
     user = await db.scalar(select(User).where(User.email == email))
-    verification_token = create_email_verification_token(user.email)
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
 
+    if not user:
+        raise HTTPException(
+            status_code=404, detail="Пользователь с таким Email не найден"
+        )
+
+    verification_token = create_email_verification_token(user.email)
     await send_password_email(email=email, token=verification_token)
-    return {"msg": "Сообщение отправлено на почту"}
+    return JSONResponse(
+        content={"message": "Сообщение отправлено на почту"},
+        status_code=200,
+    )
 
 
 @router.post("/change-password/{token}")
@@ -36,4 +43,7 @@ async def change_password(
     user.hashed_password = hashed_password
     db.add(user)
     await db.commit()
-    return {"msg": "Пароль успешно сменён"}
+    return JSONResponse(
+        content={"message": "Пароль успешно сменён"},
+        status_code=200,
+    )
