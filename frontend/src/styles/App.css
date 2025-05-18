@@ -29,6 +29,15 @@
     box-sizing: border-box;
 }
 
+.ant-layout-content {
+    padding: 24px;
+    margin: 0;
+    min-height: 280px;
+    background-color: white;
+    border-radius: 7px;
+    overflow: auto;
+}
+
 .button {
     padding: 10px;
     background-color: #007bff;
