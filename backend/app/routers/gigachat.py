@@ -14,7 +14,7 @@ model = GigaChat(
 )
 
 
-@router.get("/get_description")
+@router.get("/get-description")
 async def generate_description(title: str):
     response = model.chat(
         f"Напиши краткое и простое описание задачи: {title}. Описание должно быть понятным, без сложных терминов и длинных предложений."
