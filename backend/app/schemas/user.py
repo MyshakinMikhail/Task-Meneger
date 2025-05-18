@@ -4,6 +4,16 @@ from typing import Optional, List
 from .note import NoteResponse
 
 
+def validate_password(v: str) -> str:
+    if len(v) < 8 or len(v) > 32:
+        raise ValueError("Пароль должен содержать от 8 до 32 символов")
+    if not re.match(r"^[a-zA-Z0-9!@#$%^&*()_+]+$", v):
+        raise ValueError(
+            "Пароль содержит недопустимые символы.\nДопустимые символы: (a-z)(A-Z)(0-9)!@#$%^&*()_+"
+        )
+    return v
+
+
 class UserRegister(BaseModel):
     username: str
     email: str
@@ -37,14 +47,8 @@ class UserRegister(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8 or len(v) > 32:
-            raise ValueError("Пароль должен содержать от 8 до 32 символов")
-        if not re.match(r"^[a-zA-Z0-9!@#$%^&*()_+]+$", v):
-            raise ValueError(
-                "Пароль содержит недопустимые символы.\nДопустимые символы: (a-z)(A-Z)(0-9)!@#$%^&*()_+"
-            )
-        return v
+    def validate_form(cls, v: str) -> str:
+        return validate_password(v)
 
 
 class UserLogin(BaseModel):
@@ -66,3 +70,12 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserResetPassword(BaseModel):
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_form(cls, v: str) -> str:
+        return validate_password(v)
