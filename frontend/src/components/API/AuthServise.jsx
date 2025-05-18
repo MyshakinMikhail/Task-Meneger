@@ -1,7 +1,7 @@
+import useAuthStore from "../../hooks/useAuthStore";
 import api from "../utils/api";
-import useAuthStore from "./../../hooks/useAuthStore";
 
-export default class PostServiсe {
+export default class AuthServiсe {
     static async PostRegistration(form, setError, setIsLoading) {
         setIsLoading(true);
         setError("");
@@ -13,7 +13,7 @@ export default class PostServiсe {
                 username: form.username,
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 alert("Подтвердите Вашу почту");
             }
             console.log("Регистрация пройдена успешно");

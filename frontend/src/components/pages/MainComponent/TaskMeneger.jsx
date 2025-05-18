@@ -1,10 +1,9 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Form, Layout, Modal } from "antd";
+import { Form, Layout } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { v4 as createUniqueKey } from "uuid";
+import Crud from "../../API/CRUD";
 import useAuthStore from "./../../../hooks/useAuthStore";
-import api from "./../../utils/api";
+import useTasks from "./../../../hooks/useTasks";
 import HeaderOfContent from "./HeaderOfContent/HeaderOfContent";
 import MyHeader from "./MyHeader/MyHeader";
 import MyModal from "./MyModal/MyModal";
@@ -20,7 +19,7 @@ const TaskManager = () => {
         { id: "completed", title: "Выполнены", color: "#f6ffed" },
     ];
 
-    const [tasks, setTasks] = useState([]);
+    const { tasks, setTasks } = useTasks();
     const [columns] = useState(initialColumns);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
@@ -29,28 +28,10 @@ const TaskManager = () => {
     const [username, setUsername] = useState("Имя пользователя");
     const accessToken = useAuthStore((state) => state.accessToken);
 
-    // ПОДГРУЗКА ЗАДАЧ С БЭКА
     useEffect(() => {
         if (!accessToken) return;
-
-        async function fetchTasks() {
-            try {
-                const response = await api.get("/tasks/me");
-                setUsername(response.data.username);
-
-                const userTasks = response.data.notes || [];
-                setTasks(userTasks);
-            } catch (error) {
-                console.log("Произошла ошибка при загрузке задач ", error);
-            }
-        }
-
-        fetchTasks();
+        Crud.GetTasks(setUsername, setTasks);
     }, [accessToken]);
-
-    useEffect(() => {
-        console.log("Задача, которую меняем", editingTask);
-    }, [editingTask]);
 
     const showModal = (task) => {
         if (task) {
@@ -65,156 +46,6 @@ const TaskManager = () => {
         }
         setIsModalVisible(true);
     };
-
-    function addTask() {
-        try {
-            const title = form.getFieldValue("title");
-
-            form.validateFields().then(async (values) => {
-                const formattedTask = {
-                    ...values,
-                    title: title.charAt(0).toUpperCase() + title.slice(1),
-                    id: createUniqueKey(),
-                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
-                    status: "todo",
-                    column: "todo",
-                };
-
-                const response = await api.post("/tasks/create-task", {
-                    ...formattedTask,
-                });
-                console.log("Запрос прошел, можно брать данные из запроса");
-                setTasks((prevTasks) => [
-                    ...prevTasks,
-                    { ...formattedTask, id: response.data.id },
-                ]);
-
-                setIsModalVisible(false);
-                form.resetFields();
-            });
-        } catch (error) {
-            console.log("Ошибка создания заметки" + error);
-        }
-    }
-
-    function editTask() {
-        try {
-            form.validateFields().then(async (values) => {
-                const formattedTask = {
-                    ...values,
-                    title:
-                        editingTask.title.charAt(0).toUpperCase() +
-                        editingTask.title.slice(1),
-                    id: editingTask.id,
-                    dueDate: values.dueDate.format("YYYY-MM-DD HH:mm:ss"),
-                    status: editingTask.status,
-                    column: editingTask.column,
-                };
-
-                setTasks((prevTasks) =>
-                    prevTasks.map((task) =>
-                        task.id === editingTask.id ? formattedTask : task
-                    )
-                );
-
-                await api.put(`/tasks/edit-task/${editingTask.id}`, {
-                    ...formattedTask,
-                });
-
-                setIsModalVisible(false);
-                form.resetFields();
-            });
-        } catch {
-            console.log("Ошибка редактирования заметки");
-        }
-    }
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        form.resetFields();
-    };
-
-    const deleteTask = (taskId) => {
-        Modal.confirm({
-            title: `Вы уверены, что хотите удалить задачу ${
-                tasks.filter((task) => task.id == taskId)[0].title
-            }?`,
-            icon: <ExclamationCircleOutlined />,
-            content: "Это действие не может быть проигнорировано.",
-            okText: "Да",
-            okType: "danger",
-            cancelText: "Нет",
-            async onOk() {
-                try {
-                    await api.delete(`/tasks/delete-task/${taskId}`); //  - запрос на удаление заметки в бд
-                    setTasks((prevTasks) =>
-                        prevTasks.filter((task) => task.id !== taskId)
-                    );
-                } catch (error) {
-                    console.log(
-                        "Произошла ошибка при удалении заметки " + error
-                    );
-                }
-            },
-        });
-    };
-
-    async function needToDo(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "todo",
-            column: "todo",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
-
-    async function startTask(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "in-progress",
-            column: "in-progress",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
-
-    async function completeTask(taskId) {
-        const updatedTask = tasks.find((task) => task.id === taskId);
-        const updatedTaskWithNewColumn = {
-            ...updatedTask,
-            status: "completed",
-            column: "completed",
-        };
-
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === taskId ? updatedTaskWithNewColumn : task
-            )
-        );
-
-        await api.put(`/tasks/edit-task/${taskId}`, {
-            ...updatedTaskWithNewColumn,
-        });
-    }
 
     const getColumnTasks = (columnId) => {
         return sortTasks(tasks.filter((task) => task.status === columnId));
@@ -245,26 +76,13 @@ const TaskManager = () => {
             <Layout>
                 <MySider colorBgContainer="white" />
                 <Layout style={{ padding: "24px 24px 24px" }}>
-                    <Content
-                        style={{
-                            padding: 24,
-                            margin: 0,
-                            minHeight: 280,
-                            backgroundColor: "white",
-                            borderRadius: "7px",
-                            overflow: "auto",
-                        }}
-                    >
+                    <Content>
                         <HeaderOfContent
                             setSortOption={setSortOption}
                             showModal={showModal}
                         />
                         <MyTaskColumn
-                            needToDo={needToDo}
-                            startTask={startTask}
-                            deleteTask={deleteTask}
                             showModal={showModal}
-                            completeTask={completeTask}
                             getColumnTasks={getColumnTasks}
                             columns={columns}
                         />
@@ -272,13 +90,10 @@ const TaskManager = () => {
                 </Layout>
             </Layout>
             <MyModal
-                setTasks={setTasks}
-                handleCancel={handleCancel}
-                addTask={addTask}
-                editTask={editTask}
-                form={form}
                 editingTask={editingTask}
+                form={form}
                 isModalVisible={isModalVisible}
+                setIsModalVisible={setIsModalVisible}
             />
         </Layout>
     );

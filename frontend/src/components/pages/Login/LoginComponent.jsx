@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PostServiсe from "../../API/PostServiseComponent";
+import AuthServiсe from "../../API/AuthServise";
 
 export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -12,7 +12,7 @@ export default function Login() {
         e.preventDefault();
 
         if (form.email && form.password) {
-            PostServiсe.PostLogin(form, setError, setIsLoading, navigate);
+            AuthServiсe.PostLogin(form, setError, setIsLoading, navigate);
         }
     };
 
@@ -47,14 +47,13 @@ export default function Login() {
                             {isLoading ? "Вход..." : "Войти"}
                         </button>
                     </form>
-                    {/* <p>
-        <Link to="/reset-password">Забыли пароль?</Link>
-        </p> */}
                     <p>
                         Нет аккаунта?{" "}
                         <Link to="/register">Зарегистрируйтесь</Link>
                     </p>
-                    <h1></h1>
+                    <p>
+                        <Link to="/reset-password/email">Забыли пароль?</Link>
+                    </p>
                 </div>
             </div>
         </>

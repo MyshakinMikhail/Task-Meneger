@@ -10,11 +10,7 @@ const { Header } = Layout;
 export default function MyHeader({ username }) {
     const navigate = useNavigate();
 
-    const userMenuItems = [
-        { key: "profile", label: "Профиль" },
-        { key: "settings", label: "Настройки" },
-        { key: "logout", label: "Выйти" },
-    ];
+    const userMenuItems = [{ key: "logout", label: "Выйти" }];
 
     const user = {
         name: username,
