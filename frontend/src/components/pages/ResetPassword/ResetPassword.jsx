@@ -29,13 +29,14 @@ export default function ResetPassword() {
                 { password: form.password }
             );
 
-            if (response.status === 201 || response.status === 200) {
+            if (response.status === 200) {
                 alert("Пароль успешно изменен");
                 navigate("/login");
             }
         } catch (error) {
             if (error.response) {
                 switch (error.response.status) {
+                    case 404:
                     case 409:
                     case 422:
                         setError(error.response.data.detail);

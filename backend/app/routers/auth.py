@@ -38,7 +38,7 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
 
     return JSONResponse(
         content={"message": "Письмо с подтверждением отправлено на вашу почту"},
-        status_code=201,
+        status_code=200,
     )
 
 
@@ -148,7 +148,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     if user.is_verified:
         return JSONResponse(
             content={"message": "Почта уже подтверждена"},
-            status_code=201,
+            status_code=200,
         )
     if datetime.now(timezone.utc) > user.token_expiration:
         raise HTTPException(status_code=400, detail="Срок действия токена истёк")
@@ -159,5 +159,5 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
 
     return JSONResponse(
         content={"message": "Почта успешно подтверждена"},
-        status_code=201,
+        status_code=200,
     )
