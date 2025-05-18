@@ -10,7 +10,7 @@ model = GigaChat(
     scope="GIGACHAT_API_PERS",
     model="GigaChat",
     verify_ssl_certs=True,
-    ca_bundle_file="cert/russian_trusted_root_ca.cer",
+    ca_bundle_file="/usr/local/share/ca-certificates/russian-trusted/russian_trusted_root_ca_pem.crt",
 )
 
 
