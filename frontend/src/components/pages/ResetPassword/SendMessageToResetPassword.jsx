@@ -10,16 +10,17 @@ export default function SendMessageToResetPassword() {
         e.preventDefault();
 
         try {
-            const response = await api.post("/reset-password/send-message", {
+            const response = await api.get("/reset-password/send-message", {
                 params: { email: email },
             });
 
-            if (response.status == 201) {
+            if (response.status == 200) {
                 alert("Письмо для восстановления отправлено на почту");
             }
         } catch (error) {
             if (error.response) {
                 switch (error.response.status) {
+                    case 404:
                     case 409:
                     case 422:
                         setError(error.response.data.detail);
@@ -40,7 +41,7 @@ export default function SendMessageToResetPassword() {
         <div className="container">
             <div className="authContainer">
                 <h2>Забыли пароль?</h2>
-                <label style={{ fontSize: "12px" }}>
+                <label style={{ fontSize: "12px", marginBottom: "6px" }}>
                     Мы отправим ссылку для восстановления на адрес
                 </label>
                 <form onSubmit={sendMessage} className="form">
