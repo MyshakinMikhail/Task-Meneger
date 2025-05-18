@@ -52,9 +52,8 @@ export default function Login() {
                         <Link to="/register">Зарегистрируйтесь</Link>
                     </p>
                     <p>
-                        <Link to="/reset-password">Забыли пароль?</Link>
+                        <Link to="/reset-password/email">Забыли пароль?</Link>
                     </p>
-                    <h1></h1>
                 </div>
             </div>
         </>

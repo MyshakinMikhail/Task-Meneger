@@ -14,7 +14,7 @@ export default function MyModal({
         try {
             const title = form.getFieldValue("title");
 
-            const response = await api.get("/gigachat/get_description", {
+            const response = await api.get("/gigachat/get-description", {
                 params: { title: title },
             });
 
