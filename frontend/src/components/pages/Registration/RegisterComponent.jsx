@@ -14,9 +14,7 @@ export default function Register() {
     const [isLoading, setIsLoading] = useState(false);
     const regRef = useRef();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async () => {
         if (form.password !== form.confirmPassword) {
             setError("Пароли не совпадают");
             return;
