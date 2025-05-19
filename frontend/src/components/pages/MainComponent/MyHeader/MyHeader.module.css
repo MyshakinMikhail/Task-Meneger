@@ -12,3 +12,20 @@
     font-weight: bold;
     margin-right: 24px;
 }
+
+.main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.span {
+    color: white;
+}
