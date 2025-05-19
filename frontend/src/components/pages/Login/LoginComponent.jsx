@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthServiсe from "../../API/AuthServise";
+import LoginFormComponent from "./LoginFormComponent";
 
 export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -8,9 +9,7 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    const handleSubmit = () => {
         if (form.email && form.password) {
             AuthServiсe.PostLogin(form, setError, setIsLoading, navigate);
         }
@@ -21,32 +20,13 @@ export default function Login() {
             <div className="container">
                 <div className="authContainer">
                     <h2>Вход</h2>
-                    <form onSubmit={handleSubmit} className="form">
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={form.email}
-                            onChange={(e) =>
-                                setForm({ ...form, email: e.target.value })
-                            }
-                            required
-                            className="input"
-                        />
-                        <input
-                            type="password"
-                            placeholder="Пароль"
-                            value={form.password}
-                            onChange={(e) =>
-                                setForm({ ...form, password: e.target.value })
-                            }
-                            required
-                            className="input"
-                        />
-                        {error && <p className="error">{error}</p>}
-                        <button type="submit" className="button">
-                            {isLoading ? "Вход..." : "Войти"}
-                        </button>
-                    </form>
+                    <LoginFormComponent
+                        handleSubmit={handleSubmit}
+                        form={form}
+                        setForm={setForm}
+                        error={error}
+                        isLoading={isLoading}
+                    />
                     <p>
                         Нет аккаунта?{" "}
                         <Link to="/register">Зарегистрируйтесь</Link>
