@@ -13,7 +13,7 @@ export default class AuthServiсe {
                 username: form.username,
             });
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 alert("Подтвердите Вашу почту");
             }
             console.log("Регистрация пройдена успешно");
