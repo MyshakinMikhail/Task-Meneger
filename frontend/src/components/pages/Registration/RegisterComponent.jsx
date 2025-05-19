@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import AuthServiсe from "../../API/AuthServise";
+import AuthServiсe from "../../API/AuthService";
 import RegisterForm from "./RegisterFormComponent";
 
 export default function Register() {
