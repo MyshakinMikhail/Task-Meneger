@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "./../../utils/api";
+import ResetPasswordForm from "./ResetPasswordForm";
 
 export default function ResetPassword() {
     const { token } = useParams();
@@ -8,9 +9,7 @@ export default function ResetPassword() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    const changePassword = async (e) => {
-        e.preventDefault();
-
+    const changePassword = async () => {
         if (form.password !== form.confirmPassword) {
             setError("Пароли не совпадают");
             return;
@@ -57,39 +56,12 @@ export default function ResetPassword() {
         <div className="container">
             <div className="authContainer">
                 <h2>Восстановление пароля</h2>
-                <form onSubmit={changePassword} className="form">
-                    <input
-                        type="password"
-                        placeholder="Введите новый пароль"
-                        value={form.password}
-                        onChange={(e) =>
-                            setForm({ ...form, password: e.target.value })
-                        }
-                        required
-                        className="input"
-                    />
-                    <input
-                        type="password"
-                        placeholder="Подтвердите новый пароль"
-                        value={form.confirmPassword}
-                        onChange={(e) =>
-                            setForm({
-                                ...form,
-                                confirmPassword: e.target.value,
-                            })
-                        }
-                        required
-                        className="input"
-                    />
-
-                    <button type="submit" className="button">
-                        Восстановить
-                    </button>
-                    <p>
-                        <Link to="/reset-password/email">Назад</Link>
-                    </p>
-                    {error && <p className="error">{error}</p>}
-                </form>
+                <ResetPasswordForm
+                    changePassword={changePassword}
+                    form={form}
+                    setForm={setForm}
+                    error={error}
+                />
             </div>
         </div>
     );
