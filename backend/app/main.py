@@ -1,10 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from fastapi import FastAPI, HTTPException, Request
-from .routers import auth
-from .database import engine
-from .models.users import Base, User
-import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+from .routers import auth, note, gigachat, resetpassword
+from .database import engine, Base
 
 
 @asynccontextmanager
@@ -16,14 +15,29 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://frontend"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/", tags=["Главная"])
 async def root():
     return {"message": "FastAPI auth app is running!"}
 
+
 app.include_router(auth.router, prefix="/auth", tags=["Аутентификация"])
+app.include_router(note.router, prefix="/tasks", tags=["Задачи"])
+app.include_router(gigachat.router, prefix="/gigachat", tags=["ГигаЧат"])
+app.include_router(
+    resetpassword.router, prefix="/reset-password", tags=["Сброс пароля"]
+)
+
 
 @app.exception_handler(RequestValidationError)
 async def handle_validation_error(request: Request, exc: RequestValidationError):
     error_message = exc.errors()[0]["msg"][13:]
     raise HTTPException(status_code=422, detail=error_message)
-
