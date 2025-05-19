@@ -1,8 +1,6 @@
 import axios from "axios";
 import useAuthStore from "./../../hooks/useAuthStore";
 
-// const VITE_API_URL = import.meta.env.VITE_API_URL;
-
 const api = axios.create({
     baseURL: "http://localhost:8000",
     withCredentials: true,
@@ -33,7 +31,6 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         if (
-            // error.response &&
             error.response.status === 401 &&
             !originalRequest._retry &&
             !originalRequest.url.includes("/auth/refresh")

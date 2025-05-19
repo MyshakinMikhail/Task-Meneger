@@ -1,5 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
+import GenerateDescription from "../../../API/GenerateDescription";
 import useTasks from "./../../../../hooks/useTasks";
 import Crud from "./../../../API/CRUD";
 const { TextArea } = Input;
@@ -11,7 +12,6 @@ export default function MyModalFrom({
     isModalVisible,
     setIsModalVisible,
     buttonRef,
-    doRequestToGigachat,
 }) {
     const { setTasks } = useTasks();
 
@@ -26,6 +26,10 @@ export default function MyModalFrom({
 
     function editTask() {
         Crud.EditTasks(form, editingTask, setTasks, setIsModalVisible);
+    }
+
+    function doRequestToGigachat() {
+        GenerateDescription(form, buttonRef);
     }
 
     return (

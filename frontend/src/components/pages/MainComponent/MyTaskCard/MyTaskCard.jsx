@@ -1,17 +1,11 @@
 import { Card, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import MyTooltips from "./../MyTooltips/MyTooltips";
+import classes from "./MyTaskCard.module.css";
 
 const { Text } = Typography;
 
-export default function MyTaskCard({
-    needToDo,
-    task,
-    showModal,
-    deleteTask,
-    startTask,
-    completeTask,
-}) {
+export default function MyTaskCard({ task, showModal }) {
     function getPriorityRu(task) {
         const priority = task.priority;
 
@@ -53,45 +47,21 @@ export default function MyTaskCard({
             size="small"
             style={{ marginBottom: "8px" }}
             actions={MyTooltips({
-                needToDo,
                 task,
                 showModal,
-                deleteTask,
-                startTask,
-                completeTask,
             })}
         >
             <div>
-                <div
-                    style={{
-                        marginBottom: "8px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
+                <div className={classes.header}>
                     <Text strong>{task.title}</Text>
                     <Tag color={getPriorityColor(task.priority)}>
                         {getPriorityRu(task)}
                     </Tag>
                 </div>
-                <Text
-                    type="secondary"
-                    style={{
-                        display: "block",
-                        marginBottom: "8px",
-                    }}
-                >
+                <Text type="secondary" className={classes.descripiton}>
                     {task.description}
                 </Text>
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginTop: "50px",
-                    }}
-                >
+                <div className={classes.footer}>
                     <Text type="secondary">
                         Срок выполнения:{" "}
                         {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}

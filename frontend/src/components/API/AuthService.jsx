@@ -80,4 +80,35 @@ export default class AuthServiсe {
             setIsLoading(false);
         }
     }
+
+    static async VerifyEmail(token, setStatus, setMessage) {
+        setMessage("");
+
+        try {
+            const response = await api.get(`/auth/verify-email/${token}`);
+
+            if (response.status == 200) {
+                setStatus("success");
+                setMessage(response.data.message);
+            }
+        } catch (error) {
+            if (error.response) {
+                setStatus("error");
+                setMessage(error.response.data.detail || "Произошла ошибка");
+                switch (error.response.status) {
+                    case 409:
+                    case 422:
+                        setMessage(error.response.data.detail);
+                        break;
+                    case 500:
+                        setMessage("Ошибка на сервере. Попробуйте позже.");
+                        break;
+                    default:
+                        setMessage("Произошла ошибка. Попробуйте еще раз.");
+                }
+            } else {
+                setMessage("Не удалось подключиться к серверу.");
+            }
+        }
+    }
 }

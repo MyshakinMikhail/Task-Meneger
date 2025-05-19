@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "./../../utils/api";
+import AuthServiсe from "../../API/AuthService";
 
 export default function VerifyEmail() {
     const { token } = useParams();
@@ -9,34 +9,7 @@ export default function VerifyEmail() {
 
     useEffect(() => {
         const verifyEmail = async () => {
-            try {
-                const response = await api.get(`/auth/verify-email/${token}`);
-
-                if (response.status == 200) {
-                    setStatus("success");
-                    setMessage(response.data.message);
-                }
-            } catch (error) {
-                if (error.response) {
-                    setStatus("error");
-                    setMessage(
-                        error.response.data.detail || "Произошла ошибка"
-                    );
-                    switch (error.response.status) {
-                        case 409:
-                        case 422:
-                            setMessage(error.response.data.detail);
-                            break;
-                        case 500:
-                            setMessage("Ошибка на сервере. Попробуйте позже.");
-                            break;
-                        default:
-                            setMessage("Произошла ошибка. Попробуйте еще раз.");
-                    }
-                } else {
-                    setMessage("Не удалось подключиться к серверу.");
-                }
-            }
+            AuthServiсe.VerifyEmail(token, setStatus, setMessage);
         };
 
         if (token) {

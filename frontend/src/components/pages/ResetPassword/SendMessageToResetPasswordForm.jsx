@@ -1,10 +1,11 @@
-import { Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input } from "antd";
 import { useEffect } from "react";
 
 export default function SendMessageToResetPasswordForm({
     sendMessage,
     email,
     setEmail,
+    error,
 }) {
     const [antdForm] = Form.useForm();
 
@@ -35,6 +36,15 @@ export default function SendMessageToResetPasswordForm({
             >
                 <Input placeholder="Введите ваш email" size="large" />
             </Form.Item>
+
+            {error && (
+                <Alert
+                    message={error}
+                    type="error"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                />
+            )}
 
             <Form.Item>
                 <Button type="primary" htmlType="submit" size="large" block>
