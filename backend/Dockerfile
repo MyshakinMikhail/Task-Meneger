@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Обновление сертификатов для GigaChat
 RUN mkdir /usr/local/share/ca-certificates/russian-trusted
-COPY cert/russian_trusted_root_ca_pem.crt cert/russian_trusted_sub_ca_pem.crt /usr/local/share/ca-certificates/russian-trusted
+COPY cert/russian_trusted_root_ca_pem.crt cert/russian_trusted_sub_ca_pem.crt /usr/local/share/ca-certificates/russian-trusted/
 RUN update-ca-certificates -v
 
 # Копируем исходный код
