@@ -79,3 +79,7 @@ class UserResetPassword(BaseModel):
     @classmethod
     def validate_form(cls, v: str) -> str:
         return validate_password(v)
+
+
+class UserOnlyEmail(BaseModel):
+    email: str

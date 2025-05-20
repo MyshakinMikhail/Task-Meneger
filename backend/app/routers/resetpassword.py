@@ -10,18 +10,20 @@ from ..security.security import (
     verify_email_token,
 )
 from ..services.email import send_password_email
-from ..schemas.user import UserResetPassword
+from ..schemas.user import UserResetPassword, UserOnlyEmail
 from ..models.users import User
 from ..database import get_db
 
 router = APIRouter()
 
 
-@router.get("/send-message")
-async def send_reset_password_email(email: str, db: AsyncSession = Depends(get_db)):
-    user: User = await db.scalar_one_or_none(select(User).where(User.email == email))
-
-    if not user.scalar().first():
+@router.post("/send-message")
+async def send_reset_password_email(
+    data: UserOnlyEmail, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(User).filter(User.email == data.email))
+    user: User | None = result.scalar().first()
+    if not user:
         raise HTTPException(
             status_code=404, detail="Пользователь с таким Email не найден"
         )
@@ -33,7 +35,7 @@ async def send_reset_password_email(email: str, db: AsyncSession = Depends(get_d
     db.add(user)
     await db.commit()
 
-    await send_password_email(email=email, token=verification_token)
+    await send_password_email(email=user.email, token=verification_token)
     return JSONResponse(
         content={"message": "Сообщение отправлено на почту"},
         status_code=200,
