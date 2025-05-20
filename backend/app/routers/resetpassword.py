@@ -19,14 +19,12 @@ router = APIRouter()
 
 @router.get("/send-message")
 async def send_reset_password_email(email: str, db: AsyncSession = Depends(get_db)):
-    user = await db.execute(select(User).filter(User.email == email))
+    user: User = await db.scalar_one_or_none(select(User).where(User.email == email))
 
-    if not user.scalars().first():
+    if not user.scalar().first():
         raise HTTPException(
             status_code=404, detail="Пользователь с таким Email не найден"
         )
-
-    user = User(email=email)
 
     verification_token = create_email_verification_token(user.email)
     user.verification_token = verification_token
