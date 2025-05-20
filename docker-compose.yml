@@ -27,7 +27,7 @@ services:
     db:
         image: postgres:13
         ports:
-            - "5.159.101.115:5433:5432"
+            - "5433:5432"
         environment:
             - POSTGRES_USER=${POSTGRES_USER}
             - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
