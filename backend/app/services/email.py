@@ -25,7 +25,7 @@ async def send_password_email(email: str, token: str):
     message["From"] = SMTP_USER
     message["To"] = email
     message["Subject"] = "Смена пароля на TaskHive"
-    message.set_content(f"Перейдите по ссылке: {DOMAIN}/reset-password/{token}")
+    message.set_content(f"Перейдите по ссылке: {DOMAIN}/update-password/{token}")
 
     await aiosmtplib.send(
         message,
