@@ -22,7 +22,7 @@ async def send_reset_password_email(
     data: UserOnlyEmail, db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(User).filter(User.email == data.email))
-    user: User | None = result.scalar().first()
+    user: User | None = result.scalars().first()
     if not user:
         raise HTTPException(
             status_code=404, detail="Пользователь с таким Email не найден"
