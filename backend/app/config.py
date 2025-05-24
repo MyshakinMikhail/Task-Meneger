@@ -3,8 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# DOMAIN = "http://5.159.101.115"
-DOMAIN = "http://localhost:5173"
+DOMAIN = "http://5.159.101.115"
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
