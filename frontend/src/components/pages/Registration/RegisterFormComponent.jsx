@@ -8,6 +8,8 @@ export default function RegisterForm({
     error,
     isLoading,
     regRef,
+    isMessageWasSend,
+    sendMessageAgain,
 }) {
     const [antdForm] = Form.useForm();
 
@@ -96,6 +98,11 @@ export default function RegisterForm({
                 >
                     {isLoading ? "Регистрация..." : "Зарегистрироваться"}
                 </Button>
+                <span style={{ marginTop: "12px", display: "block" }}>
+                    {isMessageWasSend ? (
+                        <a onClick={sendMessageAgain}>Отправить письмо снова</a>
+                    ) : null}
+                </span>
             </Form.Item>
         </Form>
     );
