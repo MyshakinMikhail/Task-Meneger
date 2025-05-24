@@ -20,7 +20,6 @@ export default class AuthServiсe {
 
             if (response.status === 200) {
                 alert("Подтвердите Вашу почту");
-                setIsMessageWasSend(true);
             }
             console.log("Регистрация пройдена успешно");
         } catch (error) {
@@ -41,6 +40,7 @@ export default class AuthServiсe {
             }
         } finally {
             setIsLoading(false);
+            setIsMessageWasSend(true);
         }
     }
 
