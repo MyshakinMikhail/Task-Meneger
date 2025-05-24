@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Cookie
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from ..schemas.user import UserRegister, UserLogin, Token
+from ..schemas.user import UserRegister, UserLogin, Token, UserOnlyEmail
 from ..models.users import User
 from ..security.security import *
 from ..database import get_db
@@ -38,6 +38,34 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
 
     return JSONResponse(
         content={"message": "Письмо с подтверждением отправлено на вашу почту"},
+        status_code=200,
+    )
+
+
+@router.post("/resend-email", response_model=Token)
+async def send_email_again(data: UserOnlyEmail, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).filter(User.email == data.email))
+    user: User | None = result.scalars().first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404, detail="Пользователь с таким Email не найден"
+        )
+
+    verification_token = create_email_verification_token(user.email)
+    user.verification_token = verification_token
+    user.token_expiration = datetime.now(timezone.utc) + timedelta(hours=24)
+
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    await send_verification_email(user.email, verification_token)
+
+    return JSONResponse(
+        content={
+            "message": "Письмо с подтверждением отправлено на вашу почту повторно"
+        },
         status_code=200,
     )
 
