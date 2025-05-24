@@ -1,9 +1,9 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout } from "antd";
 import { useNavigate } from "react-router-dom";
+import icon from "./../../../../../public/TaskHive2.svg";
 import Logout from "./../../../API/Logout";
 import classes from "./MyHeader.module.css";
-
 const { Header } = Layout;
 
 export default function MyHeader({ username }) {
@@ -27,7 +27,15 @@ export default function MyHeader({ username }) {
 
     return (
         <Header className={classes.header}>
-            <div className={classes.logo}>TaskHive</div>
+            <div className={classes.logo}>
+                <img
+                    src={icon}
+                    width="40"
+                    height="40"
+                    style={{ marginRight: "20px" }}
+                ></img>
+                <div>TaskHive</div>
+            </div>
             <div className={classes.main}>
                 <Dropdown
                     menu={{ items: userMenuItems, onClick: handleMenuClick }}
