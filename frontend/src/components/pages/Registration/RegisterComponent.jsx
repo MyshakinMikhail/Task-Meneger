@@ -12,6 +12,7 @@ export default function Register() {
     });
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isMessageWasSend, setIsMessageWasSend] = useState(false);
     const regRef = useRef();
 
     const handleSubmit = async () => {
@@ -20,9 +21,23 @@ export default function Register() {
             return;
         }
 
-        AuthServiсe.PostRegistration(form, setError, setIsLoading);
+        AuthServiсe.PostRegistration(
+            form,
+            setError,
+            setIsLoading,
+            setIsMessageWasSend
+        );
         regRef.current?.blur();
     };
+
+    async function sendMessageAgain() {
+        AuthServiсe.PostRegistrationAgain(
+            form,
+            setError,
+            setIsLoading,
+            setIsMessageWasSend
+        );
+    }
 
     return (
         <div className="container">
@@ -30,11 +45,13 @@ export default function Register() {
                 <h2>Регистрация</h2>
                 <RegisterForm
                     regRef={regRef}
+                    sendMessageAgain={sendMessageAgain}
                     handleSubmit={handleSubmit}
                     form={form}
                     setForm={setForm}
                     error={error}
                     isLoading={isLoading}
+                    isMessageWasSend={isMessageWasSend}
                 />
                 <p>
                     Уже есть аккаунт? <Link to="/login">Войти</Link>
