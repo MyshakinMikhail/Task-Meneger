@@ -2,7 +2,12 @@ import useAuthStore from "../../hooks/useAuthStore";
 import api from "../utils/api";
 
 export default class AuthServiсe {
-    static async PostRegistration(form, setError, setIsLoading) {
+    static async PostRegistration(
+        form,
+        setError,
+        setIsLoading,
+        setIsMessageWasSend
+    ) {
         setIsLoading(true);
         setError("");
 
@@ -17,6 +22,46 @@ export default class AuthServiсe {
                 alert("Подтвердите Вашу почту");
             }
             console.log("Регистрация пройдена успешно");
+        } catch (error) {
+            if (error.response) {
+                switch (error.response.status) {
+                    case 409:
+                    case 422:
+                        setError(error.response.data.detail);
+                        break;
+                    case 500:
+                        setError("Ошибка на сервере. Попробуйте позже.");
+                        break;
+                    default:
+                        setError("Произошла ошибка. Попробуйте еще раз.");
+                }
+            } else {
+                setError("Не удалось подключиться к серверу.");
+            }
+        } finally {
+            setIsLoading(false);
+            setIsMessageWasSend(true);
+        }
+    }
+
+    static async PostRegistrationAgain(
+        form,
+        setError,
+        setIsLoading,
+        setIsMessageWasSend
+    ) {
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const response = await api.post("/auth/resend-email", {
+                email: form.email,
+            });
+
+            if (response.status === 200) {
+                alert("Ссылка на подтверждение отправлена на почту");
+                setIsMessageWasSend(true);
+            }
         } catch (error) {
             if (error.response) {
                 switch (error.response.status) {

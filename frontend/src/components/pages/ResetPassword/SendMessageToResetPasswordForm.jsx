@@ -20,7 +20,7 @@ export default function SendMessageToResetPasswordForm({
     return (
         <Form
             form={antdForm}
-            onFinish={() => sendMessage({ email })}
+            onFinish={() => sendMessage(antdForm.getFieldValue("email"))}
             onValuesChange={onValuesChange}
             layout="vertical"
             className="send-message-form"

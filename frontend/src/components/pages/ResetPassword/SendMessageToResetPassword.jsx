@@ -7,7 +7,7 @@ export default function SendMessageToResetPassword() {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
 
-    async function sendMessage() {
+    async function sendMessage(email) {
         ResetPasswordServise.SendMessageToResetPassword(email, setError);
     }
 

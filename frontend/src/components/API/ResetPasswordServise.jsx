@@ -50,8 +50,8 @@ export default class ResetPasswordServise {
         setError("");
 
         try {
-            const response = await api.get("/reset-password/send-message", {
-                params: { email: email },
+            const response = await api.post("/reset-password/send-message", {
+                email: email,
             });
 
             if (response.status == 200) {
