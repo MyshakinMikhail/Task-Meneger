@@ -4,7 +4,6 @@ import utc from "dayjs/plugin/utc";
 import MyTooltips from "./../MyTooltips/MyTooltips";
 import classes from "./MyTaskCard.module.css";
 
-// Подключаем плагин UTC
 dayjs.extend(utc);
 
 const { Text } = Typography;
