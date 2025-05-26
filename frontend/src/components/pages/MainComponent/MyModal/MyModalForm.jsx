@@ -17,12 +17,12 @@ export default function MyModalFrom({
     const { setTasks } = useTasks();
 
     useEffect(() => {
-        if (isModalVisible) {
+        if (isModalVisible && !editingTask) {
             form.setFieldsValue({
                 dueDate: dayjs().add(1, "day"),
             });
         }
-    }, [isModalVisible, form]);
+    }, [isModalVisible, form, editingTask]);
 
     const handleCancel = () => {
         setIsModalVisible(false);
