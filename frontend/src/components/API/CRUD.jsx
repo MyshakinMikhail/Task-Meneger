@@ -8,8 +8,13 @@ export default class Crud {
             const response = await api.get("/tasks/me");
             setUsername(response.data.username);
 
-            const userTasks = response.data.notes || [];
+            const userTasks = (response.data?.notes || []).map((task) => ({
+                ...task,
+                dueDate: task.dueDate ? task.dueDate.replace("Z", "") : null,
+            }));
             setTasks(userTasks);
+
+            console.log(userTasks);
         } catch (error) {
             console.log("Произошла ошибка при загрузке задач ", error);
         }

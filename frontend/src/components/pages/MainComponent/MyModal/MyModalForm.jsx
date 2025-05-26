@@ -1,5 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
+import { useEffect } from "react";
 import GenerateDescription from "../../../API/GenerateDescription";
 import useTasks from "./../../../../hooks/useTasks";
 import Crud from "./../../../API/CRUD";
@@ -14,6 +15,14 @@ export default function MyModalFrom({
     buttonRef,
 }) {
     const { setTasks } = useTasks();
+
+    useEffect(() => {
+        if (isModalVisible && !editingTask) {
+            form.setFieldsValue({
+                dueDate: dayjs().add(1, "day"),
+            });
+        }
+    }, [isModalVisible, form, editingTask]);
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -47,7 +56,7 @@ export default function MyModalFrom({
                 name="taskForm"
                 initialValues={{
                     priority: "low",
-                    dueDate: dayjs().add(1, "day"),
+                    // dueDate: dayjs().add(1, "day"),
                 }}
             >
                 <Form.Item
