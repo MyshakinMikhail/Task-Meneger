@@ -51,7 +51,7 @@ export default function MyModalFrom({
                 name="taskForm"
                 initialValues={{
                     priority: "low",
-                    dueDate: dayjs().utc().add(1, "day"),
+                    dueDate: dayjs().add(1, "day"),
                 }}
             >
                 <Form.Item
