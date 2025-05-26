@@ -25,11 +25,28 @@ export default function MyModalFrom({
     };
 
     function addTask() {
-        Crud.AddTasks(form, setTasks, setIsModalVisible);
+        const values = form.getFieldsValue();
+        const utcDueDate = values.dueDate
+            ? dayjs(values.dueDate).utc().format()
+            : null;
+        Crud.AddTasks(
+            { ...values, dueDate: utcDueDate },
+            setTasks,
+            setIsModalVisible
+        );
     }
 
     function editTask() {
-        Crud.EditTasks(form, editingTask, setTasks, setIsModalVisible);
+        const values = form.getFieldsValue();
+        const utcDueDate = values.dueDate
+            ? dayjs(values.dueDate).utc().format()
+            : null;
+        Crud.EditTasks(
+            { ...values, dueDate: utcDueDate },
+            editingTask,
+            setTasks,
+            setIsModalVisible
+        );
     }
 
     function doRequestToGigachat() {
@@ -52,6 +69,12 @@ export default function MyModalFrom({
                 initialValues={{
                     priority: "low",
                     dueDate: dayjs().add(1, "day"),
+                    ...(editingTask && {
+                        ...editingTask,
+                        dueDate: editingTask.dueDate
+                            ? dayjs.utc(editingTask.dueDate).local()
+                            : null,
+                    }),
                 }}
             >
                 <Form.Item
@@ -88,7 +111,14 @@ export default function MyModalFrom({
                         <Option value="high">Высокий</Option>
                     </Select>
                 </Form.Item>
-                <Form.Item name="dueDate" label="Срок выполнения">
+                <Form.Item
+                    name="dueDate"
+                    label="Срок выполнения"
+                    getValueFromEvent={(value) => value}
+                    getValueProps={(value) => ({
+                        value: value ? dayjs(value) : null,
+                    })}
+                >
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
