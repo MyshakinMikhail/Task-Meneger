@@ -1,10 +1,7 @@
 import { Card, Tag, Typography } from "antd";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import MyTooltips from "./../MyTooltips/MyTooltips";
 import classes from "./MyTaskCard.module.css";
-
-dayjs.extend(utc);
 
 const { Text } = Typography;
 
@@ -23,13 +20,12 @@ export default function MyTaskCard({ task, showModal }) {
     }
 
     const getStatusTag = (task) => {
-        const today = dayjs().utc();
-        const dueDate = dayjs.utc(task.dueDate);
+        const today = dayjs();
+        const dueDate = dayjs(task.dueDate);
 
-        if (task.status !== "completed" && dueDate.isBefore(today, "seconds")) {
+        if (task.status != "completed" && dueDate.isBefore(today, "seconds")) {
             return <Tag color="error">Просрочено</Tag>;
         }
-        return null;
     };
 
     const getPriorityColor = (priority) => {
@@ -68,9 +64,7 @@ export default function MyTaskCard({ task, showModal }) {
                 <div className={classes.footer}>
                     <Text type="secondary">
                         Срок выполнения:{" "}
-                        {dayjs
-                            .utc(task.dueDate)
-                            .format("MMM D, YYYY, HH:mm:ss")}
+                        {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}
                     </Text>
                     {getStatusTag(task)}
                 </div>

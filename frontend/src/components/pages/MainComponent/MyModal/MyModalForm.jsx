@@ -1,14 +1,10 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import GenerateDescription from "../../../API/GenerateDescription";
 import useTasks from "./../../../../hooks/useTasks";
 import Crud from "./../../../API/CRUD";
-
 const { TextArea } = Input;
 const { Option } = Select;
-
-dayjs.extend(utc);
 
 export default function MyModalFrom({
     form,
@@ -25,28 +21,11 @@ export default function MyModalFrom({
     };
 
     function addTask() {
-        const values = form.getFieldsValue();
-        const utcDueDate = values.dueDate
-            ? dayjs(values.dueDate).utc().format()
-            : null;
-        Crud.AddTasks(
-            { ...values, dueDate: utcDueDate },
-            setTasks,
-            setIsModalVisible
-        );
+        Crud.AddTasks(form, setTasks, setIsModalVisible);
     }
 
     function editTask() {
-        const values = form.getFieldsValue();
-        const utcDueDate = values.dueDate
-            ? dayjs(values.dueDate).utc().format()
-            : null;
-        Crud.EditTasks(
-            { ...values, dueDate: utcDueDate },
-            editingTask,
-            setTasks,
-            setIsModalVisible
-        );
+        Crud.EditTasks(form, editingTask, setTasks, setIsModalVisible);
     }
 
     function doRequestToGigachat() {
@@ -59,7 +38,7 @@ export default function MyModalFrom({
             open={isModalVisible}
             onCancel={handleCancel}
             okText={editingTask ? "Сохранить" : "Создать"}
-            cancelText="Отменить"
+            cancelText={"Отменить"}
             onOk={editingTask ? editTask : addTask}
         >
             <Form
@@ -69,12 +48,6 @@ export default function MyModalFrom({
                 initialValues={{
                     priority: "low",
                     dueDate: dayjs().add(1, "day"),
-                    ...(editingTask && {
-                        ...editingTask,
-                        dueDate: editingTask.dueDate
-                            ? dayjs.utc(editingTask.dueDate).local()
-                            : null,
-                    }),
                 }}
             >
                 <Form.Item
@@ -111,17 +84,9 @@ export default function MyModalFrom({
                         <Option value="high">Высокий</Option>
                     </Select>
                 </Form.Item>
-                <Form.Item
-                    name="dueDate"
-                    label="Срок выполнения"
-                    getValueFromEvent={(value) => value}
-                    getValueProps={(value) => ({
-                        value: value ? dayjs(value) : null,
-                    })}
-                >
+                <Form.Item name="dueDate" label="Срок выполнения">
                     <DatePicker
                         showTime
-                        format="YYYY-MM-DD HH:mm:ss"
                         style={{ width: "100%" }}
                         placeholder="Укажите срок выполнения задачи"
                     />
@@ -129,7 +94,8 @@ export default function MyModalFrom({
                 <Form.Item>
                     <Button
                         ref={buttonRef}
-                        type="primary"
+                        color="primary"
+                        variant="solid"
                         onClick={doRequestToGigachat}
                     >
                         Сгенерировать описание по заголовку с Gigachat
