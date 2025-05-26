@@ -20,8 +20,8 @@ export default function MyTaskCard({ task, showModal }) {
     }
 
     const getStatusTag = (task) => {
-        const today = dayjs();
-        const dueDate = dayjs(task.dueDate);
+        const today = dayjs().utc();
+        const dueDate = dayjs(task.dueDate).utc();
 
         if (task.status != "completed" && dueDate.isBefore(today, "seconds")) {
             return <Tag color="error">Просрочено</Tag>;
@@ -64,7 +64,9 @@ export default function MyTaskCard({ task, showModal }) {
                 <div className={classes.footer}>
                     <Text type="secondary">
                         Срок выполнения:{" "}
-                        {dayjs(task.dueDate).format("MMM D, YYYY, HH:mm:ss")}
+                        {dayjs(task.dueDate)
+                            .utc()
+                            .format("MMM D, YYYY, HH:mm:ss")}
                     </Text>
                     {getStatusTag(task)}
                 </div>
