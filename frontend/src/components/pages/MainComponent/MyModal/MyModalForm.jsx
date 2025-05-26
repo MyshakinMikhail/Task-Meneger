@@ -1,6 +1,5 @@
 import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import GenerateDescription from "../../../API/GenerateDescription";
 import useTasks from "./../../../../hooks/useTasks";
@@ -10,7 +9,6 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export default function MyModalFrom({
     form,
@@ -38,10 +36,6 @@ export default function MyModalFrom({
         GenerateDescription(form, buttonRef);
     }
 
-    const normalizeDate = (value) => {
-        return value ? dayjs(value).utc().format() : null;
-    };
-
     return (
         <Modal
             title={editingTask ? "Редактировать задачу" : "Создать задачу"}
@@ -57,13 +51,7 @@ export default function MyModalFrom({
                 name="taskForm"
                 initialValues={{
                     priority: "low",
-                    dueDate: dayjs().add(1, "day"),
-                    ...(editingTask && {
-                        ...editingTask,
-                        dueDate: editingTask.dueDate
-                            ? dayjs.utc(editingTask.dueDate)
-                            : null,
-                    }),
+                    dueDate: dayjs().utc().add(1, "day"),
                 }}
             >
                 <Form.Item
@@ -100,14 +88,7 @@ export default function MyModalFrom({
                         <Option value="high">Высокий</Option>
                     </Select>
                 </Form.Item>
-                <Form.Item
-                    name="dueDate"
-                    label="Срок выполнения"
-                    getValueFromEvent={normalizeDate}
-                    getValueProps={(value) => ({
-                        value: value ? dayjs.utc(value) : null,
-                    })}
-                >
+                <Form.Item name="dueDate" label="Срок выполнения">
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
